@@ -2,7 +2,7 @@ import logging
 import os
 from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage, SystemMessage
-from config import REJECTION_MESSAGE, TEMPERATURE
+from config import REJECTION_MESSAGE, TEMPERATURE, LLM_MODEL
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,8 @@ def generate_answer(vectordb, query, retrieved_results=None):
         return {
             "answer": REJECTION_MESSAGE,
             "sources": [],
-            "rejected": True
+            "rejected": True,
+            "soft_reject": False
         }
     
     logger.info(f"generate_answer: generating answer for query '{query}'")
@@ -48,7 +49,7 @@ def generate_answer(vectordb, query, retrieved_results=None):
     prompt = build_rag_prompt(retrieved_results["results"], query)
     
     model = ChatOllama(
-        model="llama3.2",
+        model=LLM_MODEL,
         temperature=TEMPERATURE,
         base_url="http://localhost:11434"
     )
@@ -62,6 +63,10 @@ def generate_answer(vectordb, query, retrieved_results=None):
         response = model.invoke(messages)
         answer = response.content
         
+        # 如果是软拒答，在回答前添加提示
+        if retrieved_results.get("soft_reject"):
+            answer = f"{retrieved_results.get('soft_message', '')}\n\n{answer}"
+        
         sources = []
         for i, chunk in enumerate(retrieved_results["results"]):
             sources.append({
@@ -74,6 +79,7 @@ def generate_answer(vectordb, query, retrieved_results=None):
             "answer": answer,
             "sources": sources,
             "rejected": False,
+            "soft_reject": retrieved_results.get("soft_reject", False),
             "min_distance": retrieved_results["min_distance"]
         }
     except Exception as e:

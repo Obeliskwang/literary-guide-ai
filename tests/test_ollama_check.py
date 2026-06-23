@@ -20,9 +20,9 @@ def test_model_is_present_exact_and_tag():
 def test_ensure_passes_when_all_models_installed(mock_fetch, monkeypatch):
     monkeypatch.delenv("SKIP_OLLAMA_CHECK", raising=False)
     mock_fetch.return_value = [
-        "llama3.2:latest",
-        "mxbai-embed-large:latest",
-        "llava:latest",
+        "qwen2:latest",
+        "bge-m3:latest",
+        "qwen2:latest",
     ]
     ensure_ollama_models()  # no raise
 

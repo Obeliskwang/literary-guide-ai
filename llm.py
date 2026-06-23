@@ -3,13 +3,13 @@ import requests
 from typing import List
 from langchain_ollama import ChatOllama
 from langchain_core.embeddings import Embeddings
-from config import EMBED_MODEL, LLM_MODEL
+from config import EMBED_MODEL, LLM_MODEL, TEMPERATURE
 
 
 class OllamaEmbeddings(Embeddings):
     """自定义 Ollama Embedding 类"""
     
-    def __init__(self, model_name: str = "mxbai-embed-large", base_url: str = "http://localhost:11434"):
+    def __init__(self, model_name: str = "bge-m3", base_url: str = "http://localhost:11434"):
         self.model_name = model_name
         self.base_url = base_url
     
@@ -42,10 +42,10 @@ def get_embeddings():
     return OllamaEmbeddings(model_name=EMBED_MODEL)
 
 def get_llm():
-    # 从环境变量读取配置，或使用默认值
-    model_name = os.environ.get("OLLAMA_MODEL", "llama3.2")
+    # 优先从环境变量读取配置，否则使用 config.py 中的默认值
+    model_name = os.environ.get("OLLAMA_MODEL", LLM_MODEL)
     base_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
-    temperature = float(os.environ.get("OLLAMA_TEMPERATURE", "0.7"))
+    temperature = float(os.environ.get("OLLAMA_TEMPERATURE", TEMPERATURE))
     
     return ChatOllama(
         model=model_name,
