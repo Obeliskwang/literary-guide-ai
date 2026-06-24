@@ -8,7 +8,7 @@ import os
 import urllib.error
 import urllib.request
 
-from config import EMBED_MODEL, LLM_MODEL  # VISION_MODEL 暂时注释掉
+from config import EMBED_MODEL, EMBED_TYPE, LLM_MODEL, LLM_TYPE  # VISION_MODEL 暂时注释掉
 
 logger = logging.getLogger(__name__)
 
@@ -61,16 +61,29 @@ def ensure_ollama_models() -> None:
     (VISION_MODEL 暂时注释掉，项目暂时不需要 llava 模型)
 
     Set SKIP_OLLAMA_CHECK=1 to disable (e.g. tests, air-gapped CI without Ollama).
+
+    Supports mixed mode: when LLM_TYPE or EMBED_TYPE is "openai", the corresponding
+    model check is skipped since it will be accessed via OpenAI API instead of Ollama.
     """
     if os.environ.get("SKIP_OLLAMA_CHECK", "").lower() in ("1", "true", "yes"):
         logger.debug("Skipping Ollama model check (SKIP_OLLAMA_CHECK is set)")
         return
 
-    required = [
-        ("LLM_MODEL", LLM_MODEL),
-        ("EMBED_MODEL", EMBED_MODEL),
-        # ("VISION_MODEL", VISION_MODEL),  # 暂时注释掉，项目暂时不需要 llava 模型
-    ]
+    # 根据模型类型决定需要检查哪些模型
+    required = []
+    
+    if LLM_TYPE == "ollama":
+        required.append(("LLM_MODEL", LLM_MODEL))
+    
+    if EMBED_TYPE == "ollama":
+        required.append(("EMBED_MODEL", EMBED_MODEL))
+    
+    # ("VISION_MODEL", VISION_MODEL),  # 暂时注释掉，项目暂时不需要 llava 模型
+
+    # 如果没有需要检查的 Ollama 模型，直接返回
+    if not required:
+        logger.debug("No Ollama models configured (all using OpenAI API), skipping check")
+        return
 
     installed = _fetch_installed_model_names()
     logger.info(
