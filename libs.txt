@@ -1,0 +1,6 @@
+streamlit
+langchain
+langchain_community
+langchain-ollama
+langchain-text-splitters
+python-dotenv
