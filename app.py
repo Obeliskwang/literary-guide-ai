@@ -4,10 +4,17 @@ import time
 import re
 import streamlit as st
 
-# ========== 导入区 ==========
 from config import setup_logging
 from ollama_check import OllamaModelsError, ensure_ollama_models
-from rag import create_vector_store, clear_vector_store, get_vector_store_stats
+from rag import (
+    create_vector_store,
+    clear_vector_store,
+    get_vector_store_stats,
+    get_vector_store_by_book,
+    delete_file_chunks,
+    delete_book_vector_store,
+    get_vector_store_stats_for_book,
+)
 from agent import generate_answer
 from character_service import (
     get_characters,
@@ -21,7 +28,17 @@ from character_service import (
     get_events,
     get_character_events,
 )
-from utils import render_mermaid  # 导入自定义渲染函数
+from utils import (
+    render_mermaid,
+    load_books_metadata,
+    save_books_metadata,
+    create_new_book,
+    add_file_to_book,
+    remove_file_from_book,
+    get_book_by_id,
+    delete_book,
+    get_total_chunk_count,
+)
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -35,128 +52,231 @@ except OllamaModelsError as e:
     st.stop()
 
 
-# ========== 初始化会话状态 ==========
 def init_session_state():
     if "vectordb" not in st.session_state:
         st.session_state.vectordb = None
     if "current_book" not in st.session_state:
         st.session_state.current_book = ""
+    if "current_book_id" not in st.session_state:
+        st.session_state.current_book_id = ""
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
     if "rag_content_hash" not in st.session_state:
         st.session_state.rag_content_hash = ""
+    if "selected_book_id" not in st.session_state:
+        st.session_state.selected_book_id = ""
 
 
 init_session_state()
 
-# ========== 页面导航 ==========
 page = st.sidebar.selectbox("选择页面", ["智能问答", "人物关系"])
 st.title("伴读精灵 - 经典文学名著导赏系统")
 
-# 人物关系页面的侧边栏功能选择
-character_tab = st.session_state.get("character_tab", "人物列表")
+
+def select_book(book_id):
+    """切换到指定书籍"""
+    book = get_book_by_id(book_id)
+    if book:
+        st.session_state.current_book_id = book_id
+        st.session_state.current_book = book["name"]
+        st.session_state.vectordb = get_vector_store_by_book(book_id)
+        st.session_state.chat_history = []
+        st.session_state.show_bookshelf = False
+
+
 if page == "人物关系":
     st.sidebar.markdown("---")
     st.sidebar.markdown("**功能选择**")
-    
-    if st.sidebar.button("人物列表", key="btn_char_list",
-                         use_container_width=True,
-                         type="primary" if character_tab == "人物列表" else "secondary"):
+
+    character_tab = st.session_state.get("character_tab", "人物列表")
+
+    if st.sidebar.button(
+        "人物列表",
+        key="btn_char_list",
+        use_container_width=True,
+        type="primary" if character_tab == "人物列表" else "secondary",
+    ):
         character_tab = "人物列表"
         st.session_state.character_tab = "人物列表"
 
-    if st.sidebar.button("关系图", key="btn_graph",
-                         use_container_width=True,
-                         type="primary" if character_tab == "人物关系图" else "secondary"):
+    if st.sidebar.button(
+        "关系图",
+        key="btn_graph",
+        use_container_width=True,
+        type="primary" if character_tab == "人物关系图" else "secondary",
+    ):
         character_tab = "人物关系图"
         st.session_state.character_tab = "人物关系图"
 
-    if st.sidebar.button("事件表", key="btn_events",
-                         use_container_width=True,
-                         type="primary" if character_tab == "核心事件表" else "secondary"):
+    if st.sidebar.button(
+        "事件表",
+        key="btn_events",
+        use_container_width=True,
+        type="primary" if character_tab == "核心事件表" else "secondary",
+    ):
         character_tab = "核心事件表"
         st.session_state.character_tab = "核心事件表"
 
-# ========== 智能问答页面 ==========
-if page == "智能问答":
-    # 侧边栏：文档上传与向量库管理
+elif page == "智能问答":
     with st.sidebar:
         st.header("文档管理")
 
-        uploaded_file = st.file_uploader("上传名著文本文件（TXT格式）", type="txt")
+        books = load_books_metadata()
 
-        mode_options = {
-            "new": "新建索引",
-            "overwrite": "覆盖现有索引",
-            "append": "追加到现有索引",
-        }
-        selected_mode = st.selectbox(
-            "入库模式", list(mode_options.keys()), format_func=lambda x: mode_options[x]
-        )
+        with st.expander(
+            f"📚 {st.session_state.current_book if st.session_state.current_book else '选择书籍'}",
+            expanded=False,
+        ):
+            st.subheader("我的书架")
 
-        if uploaded_file and st.button("开始入库"):
-            uploaded_file.seek(0)
-            raw = uploaded_file.read()
-            name = getattr(uploaded_file, "name", "upload")
-            content_hash = hashlib.sha256(raw).hexdigest()
-
-            if len(raw) == 0:
-                st.error("文件为空，请选择有效的文本文件")
-            elif len(raw) > 50 * 1024 * 1024:
-                st.error("文件过大，建议不超过50MB")
+            if not books:
+                st.info("暂无书籍")
             else:
-                try:
-                    text = raw.decode("utf-8")
-                except UnicodeDecodeError:
-                    try:
-                        text = raw.decode("gbk")
-                    except:
-                        st.error("文件编码异常，请使用 UTF-8 或 GBK 格式")
-                        st.stop()
-
-                logger.info(
-                    "RAG upload (new or replaced file): file=%r bytes=%s chars=%s mode=%s",
-                    name,
-                    len(raw),
-                    len(text),
-                    selected_mode,
+                selected_id = (
+                    st.session_state.selected_book_id
+                    or st.session_state.current_book_id
                 )
 
-                with st.spinner("正在处理文件..."):
-                    if (
-                        selected_mode == "overwrite"
-                        and st.session_state.vectordb is not None
+                for book in books:
+                    is_selected = book["id"] == selected_id
+                    if st.radio(
+                        f"{book['name']} ({len(book.get('files', []))}个文件)",
+                        [book["id"]],
+                        index=0 if is_selected else None,
+                        key=f"radio_{book['id']}",
+                        label_visibility="collapsed",
                     ):
-                        clear_vector_store(st.session_state.vectordb)
+                        st.session_state.selected_book_id = book["id"]
 
-                    st.session_state.vectordb = create_vector_store(
-                        text, mode=selected_mode
-                    )
-                    st.session_state.rag_content_hash = content_hash
-                    st.session_state.current_book = name
-                    st.session_state.chat_history = []
+            st.markdown("---")
+            st.subheader("新建书籍")
+            new_book_name = st.text_input("输入书籍名称", key="input_new_book_name")
 
-                st.success(f"《{name}》已成功入库，可以开始提问！")
+            col_ok, col_new = st.columns(2)
+            with col_ok:
+                if st.button("确定选择"):
+                    if st.session_state.selected_book_id:
+                        select_book(st.session_state.selected_book_id)
+                    else:
+                        st.warning("请选择一本书")
+            with col_new:
+                if st.button("创建书籍"):
+                    if new_book_name.strip():
+                        book_id = create_new_book(new_book_name.strip())
+                        select_book(book_id)
+                        st.success(f"书籍《{new_book_name}》已创建！")
+                    else:
+                        st.warning("请输入书籍名称")
 
-        st.header("向量库管理")
-        stats = get_vector_store_stats(st.session_state.vectordb)
-        st.info(f"当前索引文档数: {stats['document_count']}")
+        uploaded_file = st.file_uploader("上传文本文件到当前书籍", type="txt")
 
-        if st.session_state.current_book:
-            st.info(f"当前名著: {st.session_state.current_book}")
-
-        if st.button("清空向量库"):
-            if st.session_state.vectordb is not None:
-                clear_vector_store(st.session_state.vectordb)
-                st.session_state.vectordb = None
-                st.session_state.current_book = ""
-                st.session_state.chat_history = []
-                st.session_state.rag_content_hash = ""
-                st.success("向量库已清空")
+        if uploaded_file and st.button("追加上传"):
+            if not st.session_state.current_book_id:
+                st.warning("请先选择或创建一本书")
             else:
-                st.warning("向量库为空")
+                uploaded_file.seek(0)
+                raw = uploaded_file.read()
+                name = getattr(uploaded_file, "name", "upload")
 
-    # 主内容区：问答界面
+                if len(raw) == 0:
+                    st.error("文件为空，请选择有效的文本文件")
+                elif len(raw) > 50 * 1024 * 1024:
+                    st.error("文件过大，建议不超过50MB")
+                else:
+                    try:
+                        text = raw.decode("utf-8")
+                    except UnicodeDecodeError:
+                        try:
+                            text = raw.decode("gbk")
+                        except:
+                            st.error("文件编码异常，请使用 UTF-8 或 GBK 格式")
+                            st.stop()
+
+                    logger.info(
+                        "RAG upload (append): file=%r bytes=%s chars=%s",
+                        name,
+                        len(raw),
+                        len(text),
+                    )
+
+                    with st.spinner("正在处理文件..."):
+                        file_id = add_file_to_book(
+                            st.session_state.current_book_id, name
+                        )
+                        vectordb, chunk_count = create_vector_store(
+                            text,
+                            st.session_state.current_book_id,
+                            file_id,
+                            name,
+                            mode="append",
+                        )
+
+                        st.session_state.vectordb = vectordb
+                        st.session_state.rag_content_hash = hashlib.sha256(
+                            raw
+                        ).hexdigest()
+
+                        book = get_book_by_id(st.session_state.current_book_id)
+                        for f in book["files"]:
+                            if f["id"] == file_id:
+                                f["chunk_count"] = chunk_count
+                                save_books_metadata(books)
+                                break
+
+                    st.success(
+                        f"文件《{name}》已成功追加到《{st.session_state.current_book}》！"
+                    )
+
+        st.markdown("---")
+        st.markdown("**当前书籍文件**")
+
+        if st.session_state.current_book_id:
+            book = get_book_by_id(st.session_state.current_book_id)
+            if book and book.get("files"):
+                for file in book["files"]:
+                    col_file, col_delete = st.columns([4, 1])
+                    with col_file:
+                        st.markdown(f"📄 {file['name']}")
+                    with col_delete:
+                        if st.button(
+                            "✕",
+                            key=f"btn_delete_file_{file['id']}",
+                            use_container_width=True,
+                        ):
+                            delete_file_chunks(
+                                st.session_state.current_book_id, file["id"]
+                            )
+                            remove_file_from_book(
+                                st.session_state.current_book_id, file["id"]
+                            )
+                            st.rerun()
+            else:
+                st.info("该书籍暂无文件")
+
+        st.markdown("---")
+        if st.session_state.current_book_id and st.button("删除当前书籍"):
+            if st.confirm(
+                f"确定要删除《{st.session_state.current_book}》吗？此操作不可恢复！"
+            ):
+                delete_book_vector_store(st.session_state.current_book_id)
+                delete_book(st.session_state.current_book_id)
+                st.session_state.current_book_id = ""
+                st.session_state.current_book = ""
+                st.session_state.vectordb = None
+                st.session_state.chat_history = []
+                st.success("书籍已删除")
+                st.rerun()
+
+        st.markdown("---")
+        if st.session_state.current_book_id:
+            stats = get_vector_store_stats_for_book(st.session_state.current_book_id)
+            book = get_book_by_id(st.session_state.current_book_id)
+            total_chunks = get_total_chunk_count(book)
+            st.info(f"文件数: {len(book.get('files', []))}")
+            st.info(f"分块数: {stats['document_count']}")
+        else:
+            st.info("请选择或创建一本书")
+
     st.header("智能问答")
 
     if st.session_state.current_book:
@@ -166,7 +286,7 @@ if page == "智能问答":
 
     if user_input:
         if st.session_state.vectordb is None:
-            st.warning("请先上传名著文本文件")
+            st.warning("请先创建书籍并上传文件")
         else:
             preview = user_input if len(user_input) <= 500 else user_input[:500] + "…"
             logger.info(
@@ -222,7 +342,10 @@ if page == "智能问答":
                 for j, source in enumerate(chat["sources"]):
                     if j < 3:
                         chapter = source.get("metadata", {}).get("chapter", "未知章节")
-                        st.write(f"片段{j+1}（{chapter}）")
+                        file_name = source.get("metadata", {}).get(
+                            "file_name", "未知文件"
+                        )
+                        st.write(f"片段{j+1}（{file_name} - {chapter}）")
                         st.write(
                             f"> {source['text'][:300]}{'...' if len(source['text']) > 300 else ''}"
                         )
@@ -239,13 +362,11 @@ if page == "智能问答":
         """
         )
 
-# ========== 人物关系页面 ==========
 elif page == "人物关系":
     book_title = get_book_title()
     if book_title:
         st.subheader(f"《{book_title}》人物关系")
 
-    # 根据侧边栏选择显示内容
     if character_tab == "人物列表":
         st.header("人物列表")
 
@@ -285,11 +406,9 @@ elif page == "人物关系":
         elif graph_mode == "天庭人物关系":
             mermaid_code = generate_mermaid_graph("jade_emperor")
 
-        # 显示源码（调试用）
         with st.expander("查看 Mermaid 源码"):
             st.code(mermaid_code, language="mermaid")
 
-        # 使用自定义渲染函数
         st.markdown("### 关系图")
         render_mermaid(mermaid_code, height="600px")
 

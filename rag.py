@@ -27,8 +27,17 @@ from llm import get_embeddings
 
 logger = logging.getLogger(__name__)
 
-PERSIST_DIR = Path("chroma_db")
+PERSIST_ROOT = Path("chroma_db")
 
+def get_book_persist_dir(book_id):
+    """获取书籍的向量库持久化目录"""
+    return PERSIST_ROOT / f"book_{book_id}"
+
+def _reset_persisted_store(book_id):
+    """重置指定书籍的向量库"""
+    persist_dir = get_book_persist_dir(book_id)
+    if persist_dir.exists():
+        shutil.rmtree(persist_dir)
 
 def clean_text(text):
     """基础文本清洗：统一换行、压缩空白、过滤广告行。适配RAG分块，抹平所有段落换行"""
@@ -67,7 +76,6 @@ def clean_text(text):
     logger.info("clean_text: cleaned from %d chars to %d chars", len(text), len(result))
     return result
 
-
 def extract_chapter_metadata(text):
     lines = text.split("\n")
     chapters = []
@@ -77,7 +85,7 @@ def extract_chapter_metadata(text):
         r"^\s*[卷部篇集]第[一二三四五六七八九十百千万\d]+.*",
         r"^\s*(Chapter|CHAPTER|Part|PART)\s*[IVXLCDM\d]+.*",
         r"^\s*[IVXLCDM\d]+\s*[章节回篇].*",
-        r"^\s*[一二三四五六七八九十\d]+\s*[�]?",
+        r"^\s*[一二三四五六七八九十\d]+\s*[回]?",
     ]
 
     for line_num, line in enumerate(lines, 1):
@@ -100,7 +108,6 @@ def extract_chapter_metadata(text):
     logger.info("extract_chapter_metadata: found %s chapters", len(chapters))
     return chapters
 
-
 def split_text_by_lines(
     text, lines_per_chunk=CHUNK_LINES, overlap_lines=CHUNK_LINE_OVERLAP
 ):
@@ -109,7 +116,6 @@ def split_text_by_lines(
     total_lines = len(lines)
     chapters = extract_chapter_metadata(text)
 
-    # 如果清洗后只剩一大段没有换行，直接按字符块兜底，避免整篇只生�?1 �?chunk
     if total_lines <= 1:
         splitter = RecursiveCharacterTextSplitter(
             chunk_size=CHUNK_SIZE,
@@ -179,33 +185,32 @@ def split_text_by_lines(
     )
     return docs
 
-
-def _reset_persisted_store():
-    if PERSIST_DIR.exists():
-        shutil.rmtree(PERSIST_DIR)
-
-
-def create_vector_store(text, mode="new"):
-    has_existing_index = False
+def create_vector_store(text, book_id, file_id, file_name, mode="append"):
+    """为指定书籍和文件创建/追加向量"""
     embeddings = get_embeddings()
-    logger.info("create_vector_store: input_chars=%s, mode=%s", len(text), mode)
+    persist_dir = get_book_persist_dir(book_id)
+    
+    logger.info("create_vector_store: book_id=%s, file_id=%s, file_name=%s, input_chars=%s, mode=%s", 
+                book_id, file_id, file_name, len(text), mode)
 
-    # 基础文本清洗
     text = clean_text(text)
-
     docs = split_text_by_lines(text)
     logger.info("create_vector_store: chunks=%s", len(docs))
 
-    # 检查是否存在现有索�?    has_existing_index = PERSIST_DIR.exists()
+    for doc in docs:
+        doc.metadata["book_id"] = book_id
+        doc.metadata["file_id"] = file_id
+        doc.metadata["file_name"] = file_name
+
+    has_existing_index = persist_dir.exists()
 
     if mode == "new":
-        # 新建索引：只在没有现有索引时创建
         if has_existing_index:
-            raise RuntimeError("当前已存在索引，请选择'覆盖现有索引'模式或先清空向量�?")
+            raise RuntimeError("当前书籍已存在索引，请选择'追加'模式或先删除书籍")
     elif mode == "overwrite":
-        # 覆盖现有索引：无条件清空并重新创�?        if has_existing_index:
-        logger.info("create_vector_store: overwriting existing index")
-        _reset_persisted_store()
+        if has_existing_index:
+            logger.info("create_vector_store: overwriting existing index")
+            _reset_persisted_store(book_id)
 
     vectordb = None
     total_batches = (len(docs) + EMBED_BATCH_SIZE - 1) // EMBED_BATCH_SIZE
@@ -222,10 +227,10 @@ def create_vector_store(text, mode="new"):
                     vectordb = Chroma.from_documents(
                         batch_docs,
                         embedding=embeddings,
-                        persist_directory=str(PERSIST_DIR),
+                        persist_directory=str(persist_dir),
                         collection_metadata={"hnsw:space": "cosine"},
                     )
-                    logger.info("create_vector_store: initial Chroma index created")
+                    logger.info("create_vector_store: initial Chroma index created for book %s", book_id)
                 else:
                     vectordb.add_documents(batch_docs)
                     logger.info("create_vector_store: batch %s added", batch_idx + 1)
@@ -239,13 +244,51 @@ def create_vector_store(text, mode="new"):
                     time.sleep(2**retry)
                 else:
                     raise RuntimeError(
-                        f"创建向量存储失败（批�?{batch_idx + 1}/{total_batches}）：{e}\n"
-                        f"建议：减�?EMBED_BATCH_SIZE 或增�?EMBED_TIMEOUT"
+                        f"创建向量存储失败（批次{batch_idx + 1}/{total_batches}）：{e}\n"
+                        f"建议：减少 EMBED_BATCH_SIZE 或增加 EMBED_TIMEOUT"
                     ) from e
 
-    logger.info("create_vector_store: Chroma index ready with %s chunks", len(docs))
+    logger.info("create_vector_store: Chroma index ready with %s chunks for book %s", len(docs), book_id)
+    return vectordb, len(docs)
+
+def get_vector_store_by_book(book_id):
+    """获取指定书籍的向量库"""
+    persist_dir = get_book_persist_dir(book_id)
+    if not persist_dir.exists():
+        return None
+    
+    embeddings = get_embeddings()
+    vectordb = Chroma(
+        persist_directory=str(persist_dir),
+        embedding_function=embeddings,
+        collection_metadata={"hnsw:space": "cosine"},
+    )
     return vectordb
 
+def delete_file_chunks(book_id, file_id):
+    """删除指定文件的所有分块向量"""
+    vectordb = get_vector_store_by_book(book_id)
+    if vectordb is None:
+        return 0
+    
+    collection = vectordb._client.get_collection(vectordb._collection.name)
+    all_data = collection.get()
+    
+    file_ids_to_delete = []
+    for idx, metadata in enumerate(all_data["metadatas"]):
+        if metadata.get("file_id") == file_id:
+            file_ids_to_delete.append(all_data["ids"][idx])
+    
+    if file_ids_to_delete:
+        collection.delete(ids=file_ids_to_delete)
+        logger.info("delete_file_chunks: deleted %s chunks for file %s", len(file_ids_to_delete), file_id)
+    
+    return len(file_ids_to_delete)
+
+def delete_book_vector_store(book_id):
+    """删除书籍的整个向量库"""
+    _reset_persisted_store(book_id)
+    logger.info("delete_book_vector_store: deleted vector store for book %s", book_id)
 
 def clear_vector_store(vectordb):
     if vectordb is not None:
@@ -254,7 +297,6 @@ def clear_vector_store(vectordb):
         collection.delete(ids=collection.get()["ids"])
         logger.info("clear_vector_store: deleted %s documents", count)
 
-
 def get_vector_store_stats(vectordb):
     if vectordb is None:
         return {"document_count": 0}
@@ -262,6 +304,14 @@ def get_vector_store_stats(vectordb):
     collection = vectordb._client.get_collection(vectordb._collection.name)
     return {"document_count": collection.count()}
 
+def get_vector_store_stats_for_book(book_id):
+    """获取指定书籍的向量库统计信息"""
+    vectordb = get_vector_store_by_book(book_id)
+    if vectordb is None:
+        return {"document_count": 0}
+    
+    collection = vectordb._client.get_collection(vectordb._collection.name)
+    return {"document_count": collection.count()}
 
 def retrieve(vectordb, query):
     logger.info("retrieve: query=%s", query)
