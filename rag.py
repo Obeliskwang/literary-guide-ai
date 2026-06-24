@@ -31,17 +31,17 @@ PERSIST_DIR = Path("chroma_db")
 
 
 def clean_text(text):
-    """�����ı���ϴ��ͳһ���С�ɾ���հ��С�ѹ�����ڿհס����˹���С�"""
+    """基础文本清洗：统一换行、压缩空白、过滤广告行。适配RAG分块，抹平所有段落换行"""
     if not text:
         return text
 
     text = text.replace("\r\n", "\n").replace("\r", "\n")
 
     ad_patterns = [
-        r"^.{0,5}(���|�ƹ�|����|����|����|��Ƹ|��Ƹ).{0,20}$",
+        r"^.{0,5}(广告|推广|赞助|招商|加盟|招聘|诚聘).{0,20}$",
         r"^.{0,10}(http|https|www\.|\.com|\.cn).{0,30}$",
-        r"^\s*\[.*?(���|�ƹ�|����).*\]\s*$",
-        r"^\s*(��ע|ɨ��|���|΢��|��ϵ��).{0,20}$",
+        r"^\s*\[.*?(广告|推广|赞助).*\]\s*$",
+        r"^\s*(关注|扫码|点击|微信|联系我).{0,20}$",
     ]
 
     cleaned_lines = []
@@ -67,6 +67,7 @@ def clean_text(text):
     logger.info("clean_text: cleaned from %d chars to %d chars", len(text), len(result))
     return result
 
+
 def extract_chapter_metadata(text):
     lines = text.split("\n")
     chapters = []
@@ -76,7 +77,7 @@ def extract_chapter_metadata(text):
         r"^\s*[卷部篇集]第[一二三四五六七八九十百千万\d]+.*",
         r"^\s*(Chapter|CHAPTER|Part|PART)\s*[IVXLCDM\d]+.*",
         r"^\s*[IVXLCDM\d]+\s*[章节回篇].*",
-        r"^\s*[一二三四五六七八九十\d]+\s*[�]?" 
+        r"^\s*[一二三四五六七八九十\d]+\s*[�]?",
     ]
 
     for line_num, line in enumerate(lines, 1):
@@ -100,7 +101,9 @@ def extract_chapter_metadata(text):
     return chapters
 
 
-def split_text_by_lines(text, lines_per_chunk=CHUNK_LINES, overlap_lines=CHUNK_LINE_OVERLAP):
+def split_text_by_lines(
+    text, lines_per_chunk=CHUNK_LINES, overlap_lines=CHUNK_LINE_OVERLAP
+):
     lines = text.split("\n")
     docs = []
     total_lines = len(lines)
@@ -171,7 +174,9 @@ def split_text_by_lines(text, lines_per_chunk=CHUNK_LINES, overlap_lines=CHUNK_L
         else:
             break
 
-    logger.info("split_text_by_lines: created %s chunks from %s lines", len(docs), total_lines)
+    logger.info(
+        "split_text_by_lines: created %s chunks from %s lines", len(docs), total_lines
+    )
     return docs
 
 
@@ -184,25 +189,23 @@ def create_vector_store(text, mode="new"):
     has_existing_index = False
     embeddings = get_embeddings()
     logger.info("create_vector_store: input_chars=%s, mode=%s", len(text), mode)
-    
+
     # 基础文本清洗
     text = clean_text(text)
-    
+
     docs = split_text_by_lines(text)
     logger.info("create_vector_store: chunks=%s", len(docs))
 
     # 检查是否存在现有索�?    has_existing_index = PERSIST_DIR.exists()
-    
+
     if mode == "new":
         # 新建索引：只在没有现有索引时创建
         if has_existing_index:
-            raise RuntimeError(
-                "当前已存在索引，请选择'覆盖现有索引'模式或先清空向量�?"
-            )
+            raise RuntimeError("当前已存在索引，请选择'覆盖现有索引'模式或先清空向量�?")
     elif mode == "overwrite":
         # 覆盖现有索引：无条件清空并重新创�?        if has_existing_index:
-            logger.info("create_vector_store: overwriting existing index")
-            _reset_persisted_store()
+        logger.info("create_vector_store: overwriting existing index")
+        _reset_persisted_store()
 
     vectordb = None
     total_batches = (len(docs) + EMBED_BATCH_SIZE - 1) // EMBED_BATCH_SIZE
@@ -229,7 +232,9 @@ def create_vector_store(text, mode="new"):
 
                 break
             except Exception as e:
-                logger.warning("batch %s retry %s failed: %s", batch_idx + 1, retry + 1, e)
+                logger.warning(
+                    "batch %s retry %s failed: %s", batch_idx + 1, retry + 1, e
+                )
                 if retry < EMBED_MAX_RETRIES - 1:
                     time.sleep(2**retry)
                 else:
@@ -266,7 +271,11 @@ def retrieve(vectordb, query):
     results_with_score = []
     min_distance = float("inf")
     for doc, distance in out:
-        logger.debug("retrieve: doc chunk preview='%s...', distance=%s", doc.page_content[:50], distance)
+        logger.debug(
+            "retrieve: doc chunk preview='%s...', distance=%s",
+            doc.page_content[:50],
+            distance,
+        )
         results_with_score.append({"document": doc, "distance": distance})
         min_distance = min(min_distance, distance)
 
@@ -278,15 +287,28 @@ def retrieve(vectordb, query):
     )
 
     if min_distance > SOFT_REJECTION_THRESHOLD:
-        logger.info("retrieve: no matching results below hard threshold, rejecting (min_distance=%s)", min_distance)
-        return {"reject": True, "message": REJECTION_MESSAGE, "min_distance": min_distance, "soft_reject": False}
+        logger.info(
+            "retrieve: no matching results below hard threshold, rejecting (min_distance=%s)",
+            min_distance,
+        )
+        return {
+            "reject": True,
+            "message": REJECTION_MESSAGE,
+            "min_distance": min_distance,
+            "soft_reject": False,
+        }
 
     results_with_score.sort(key=lambda x: x["distance"])
-    filtered_results = [r for r in results_with_score if r["distance"] <= SOFT_REJECTION_THRESHOLD]
+    filtered_results = [
+        r for r in results_with_score if r["distance"] <= SOFT_REJECTION_THRESHOLD
+    ]
     logger.info("retrieve: filtered to %s relevant results", len(filtered_results))
 
     if min_distance > SIMILARITY_THRESHOLD:
-        logger.info("retrieve: results below hard threshold but above soft threshold, soft rejecting (min_distance=%s)", min_distance)
+        logger.info(
+            "retrieve: results below hard threshold but above soft threshold, soft rejecting (min_distance=%s)",
+            min_distance,
+        )
         return {
             "reject": False,
             "results": filtered_results,
@@ -295,4 +317,9 @@ def retrieve(vectordb, query):
             "soft_message": SOFT_REJECTION_MESSAGE,
         }
 
-    return {"reject": False, "results": filtered_results, "min_distance": min_distance, "soft_reject": False}
+    return {
+        "reject": False,
+        "results": filtered_results,
+        "min_distance": min_distance,
+        "soft_reject": False,
+    }

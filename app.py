@@ -53,6 +53,30 @@ init_session_state()
 page = st.sidebar.selectbox("选择页面", ["智能问答", "人物关系"])
 st.title("伴读精灵 - 经典文学名著导赏系统")
 
+# 人物关系页面的侧边栏功能选择
+character_tab = st.session_state.get("character_tab", "人物列表")
+if page == "人物关系":
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("**功能选择**")
+    
+    if st.sidebar.button("人物列表", key="btn_char_list",
+                         use_container_width=True,
+                         type="primary" if character_tab == "人物列表" else "secondary"):
+        character_tab = "人物列表"
+        st.session_state.character_tab = "人物列表"
+
+    if st.sidebar.button("关系图", key="btn_graph",
+                         use_container_width=True,
+                         type="primary" if character_tab == "人物关系图" else "secondary"):
+        character_tab = "人物关系图"
+        st.session_state.character_tab = "人物关系图"
+
+    if st.sidebar.button("事件表", key="btn_events",
+                         use_container_width=True,
+                         type="primary" if character_tab == "核心事件表" else "secondary"):
+        character_tab = "核心事件表"
+        st.session_state.character_tab = "核心事件表"
+
 # ========== 智能问答页面 ==========
 if page == "智能问答":
     # 侧边栏：文档上传与向量库管理
@@ -221,67 +245,67 @@ elif page == "人物关系":
     if book_title:
         st.subheader(f"《{book_title}》人物关系")
 
-    # 人物列表
-    st.header("人物列表")
+    # 根据侧边栏选择显示内容
+    if character_tab == "人物列表":
+        st.header("人物列表")
 
-    families = get_all_families()
-    selected_family = st.selectbox("按家族筛选", ["全部"] + families)
+        families = get_all_families()
+        selected_family = st.selectbox("按家族筛选", ["全部"] + families)
 
-    if selected_family == "全部":
-        characters = get_characters()
-    else:
-        characters = get_characters_by_family(selected_family)
+        if selected_family == "全部":
+            characters = get_characters()
+        else:
+            characters = get_characters_by_family(selected_family)
 
-    cols = st.columns(3)
-    for idx, char in enumerate(characters):
-        with cols[idx % 3]:
-            with st.expander(f"{char['name']} - {char['identity']}"):
-                st.write(f"**身份**: {char['identity']}")
-                st.write(f"**家族**: {char.get('family', '未知')}")
-                st.write(f"**简介**: {char.get('description', '')}")
+        cols = st.columns(3)
+        for idx, char in enumerate(characters):
+            with cols[idx % 3]:
+                with st.expander(f"{char['name']} - {char['identity']}"):
+                    st.write(f"**身份**: {char['identity']}")
+                    st.write(f"**家族**: {char.get('family', '未知')}")
+                    st.write(f"**简介**: {char.get('description', '')}")
 
-                relations = get_character_relations(char["id"])
-                if relations:
-                    st.write("**关联角色**:")
-                    for rel in relations:
-                        st.write(f"- {rel['target_name']}：{rel['relation']}")
+                    relations = get_character_relations(char["id"])
+                    if relations:
+                        st.write("**关联角色**:")
+                        for rel in relations:
+                            st.write(f"- {rel['target_name']}：{rel['relation']}")
 
-    # ========== 人物关系图 ==========
-    st.header("人物关系图")
+    elif character_tab == "人物关系图":
+        st.header("人物关系图")
 
-    graph_mode = st.selectbox(
-        "选择关系图类型", ["取经团队关系", "孙悟空关系网", "天庭人物关系"]
-    )
+        graph_mode = st.selectbox(
+            "选择关系图类型", ["取经团队关系", "孙悟空关系网", "天庭人物关系"]
+        )
 
-    if graph_mode == "取经团队关系":
-        mermaid_code = generate_mermaid_graph_family()
-    elif graph_mode == "孙悟空关系网":
-        mermaid_code = generate_mermaid_graph("sun_wukong")
-    elif graph_mode == "天庭人物关系":
-        mermaid_code = generate_mermaid_graph("jade_emperor")
+        if graph_mode == "取经团队关系":
+            mermaid_code = generate_mermaid_graph_family()
+        elif graph_mode == "孙悟空关系网":
+            mermaid_code = generate_mermaid_graph("sun_wukong")
+        elif graph_mode == "天庭人物关系":
+            mermaid_code = generate_mermaid_graph("jade_emperor")
 
-    # ========== 使用 render_mermaid 渲染 ==========
-    # 显示源码（调试用）
-    with st.expander("📄 查看 Mermaid 源码"):
-        st.code(mermaid_code, language="mermaid")
+        # 显示源码（调试用）
+        with st.expander("查看 Mermaid 源码"):
+            st.code(mermaid_code, language="mermaid")
 
-    # 使用自定义渲染函数
-    st.markdown("### 📊 关系图")
-    render_mermaid(mermaid_code, height="600px")
+        # 使用自定义渲染函数
+        st.markdown("### 关系图")
+        render_mermaid(mermaid_code, height="600px")
 
-    # ========== 核心事件表 ==========
-    st.header("核心事件表")
+    elif character_tab == "核心事件表":
+        st.header("核心事件表")
 
-    events = get_events()
-    if events:
-        for event in events:
-            with st.expander(f"{event['name']} - {event['chapter']}"):
-                st.write(f"**章节**: {event['chapter']}")
-                st.write(f"**描述**: {event['description']}")
-                st.write("**涉及人物**:")
-                char_names = []
-                for char_id in event["characters"]:
-                    char = get_character_by_id(char_id)
-                    if char:
-                        char_names.append(char["name"])
-                st.write(", ".join(char_names))
+        events = get_events()
+        if events:
+            for event in events:
+                with st.expander(f"{event['name']} - {event['chapter']}"):
+                    st.write(f"**章节**: {event['chapter']}")
+                    st.write(f"**描述**: {event['description']}")
+                    st.write("**涉及人物**:")
+                    char_names = []
+                    for char_id in event["characters"]:
+                        char = get_character_by_id(char_id)
+                        if char:
+                            char_names.append(char["name"])
+                    st.write(", ".join(char_names))
