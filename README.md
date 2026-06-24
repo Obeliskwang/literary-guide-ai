@@ -1,37 +1,139 @@
-# literary-ai-guide
+# 伴读精灵 - 经典文学名著导赏系统
 
-#### 介绍
-本项目基于Python、LangChain、LLM与Chroma向量数据库搭建RAG智能问答系统，可实现经典文学名著文本预处理、向量知识库构建、名著阅读导赏、人物关系查询与多轮对话交互。
+> 基于大模型的经典文学名著阅读导赏与人物关系问答系统
 
-#### 软件架构
-软件架构说明
+## 项目简介
 
+伴读精灵是一款面向大学生的名著辅助阅读工具，基于 RAG（检索增强生成）技术，让用户提问后获得有原著原文依据的回答，从根源解决大模型幻觉问题。
 
-#### 安装教程
+### 核心功能
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+| 功能模块 | 描述 | 状态 |
+|----------|------|------|
+| 📁 文档上传 | 支持 TXT 格式名著文本上传 | ✅ |
+| 📚 向量入库 | 文本分块、向量化存储到 Chroma | ✅ |
+| 💬 溯源问答 | 基于原著片段回答，强制引用原文 | ✅ |
+| 📖 双栏展示 | AI 回答 + 原著依据对照展示 | ✅ |
+| 🚫 拒答机制 | 检索无结果时稳定拒答，零幻觉输出 | ✅ |
+| 🗄️ 向量库管理 | 新建/覆盖/追加/清空索引 | ✅ |
 
-#### 使用说明
+## 技术栈
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+| 层级 | 技术 | 说明 |
+|------|------|------|
+| 前端展示 | Streamlit | 快速构建交互页面 |
+| 后端逻辑 | Python 3.10+ | 业务实现与数据处理 |
+| RAG 编排 | LangChain | 文档加载、分块、检索 |
+| 向量库 | ChromaDB | 本地轻量向量存储 |
+| 向量模型 | BGE-M3 | 中文向量化 |
+| 大模型 | Qwen2 | 本地量化模型 |
 
-#### 参与贡献
+## 安装教程
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+### 1. 安装依赖
 
+```bash
+cd literary-ai-guide-master
+pip install -r requirements.txt
+```
 
-#### 特技
+### 2. 安装 Ollama
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+请从 [Ollama 官网](https://ollama.com/) 下载并安装 Ollama。
+
+### 3. 下载模型
+
+```bash
+# 下载大模型（中文优化）
+ollama pull qwen2:7b
+
+# 下载向量化模型
+ollama pull bge-m3
+```
+
+## 使用说明
+
+### 启动应用
+
+```bash
+cd literary-ai-guide-master
+streamlit run app.py
+```
+
+### 操作流程
+
+1. **上传名著文本**：在侧边栏选择 TXT 文件，选择入库模式（新建/覆盖/追加）
+2. **开始入库**：点击"开始入库"按钮，等待处理完成
+3. **智能问答**：在问答区输入问题，系统会检索原著并生成带原文依据的回答
+4. **查看结果**：左侧显示 AI 回答，右侧显示原著依据和章节出处
+
+### 入库模式说明
+
+| 模式 | 说明 |
+|------|------|
+| 新建索引 | 创建全新向量库 |
+| 覆盖现有索引 | 清空旧数据后写入新数据 |
+| 追加到现有索引 | 保留旧数据，添加新数据 |
+
+## 项目结构
+
+```
+literary-ai-guide-master/
+├── app.py              # Streamlit 主页面
+├── config.py           # 配置参数
+├── llm.py              # 大模型与 Embedding 加载
+├── rag.py              # RAG 检索逻辑
+├── agent.py            # 问答编排
+├── ollama_check.py     # Ollama 模型检查
+├── requirements.txt    # 依赖清单
+├── text_test/          # 测试文本目录
+└── README.md           # 项目说明
+```
+
+## 配置说明
+
+主要配置项位于 `config.py`：
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| LLM_MODEL | qwen2:7b | 大模型名称 |
+| EMBED_MODEL | bge-m3 | 向量化模型 |
+| CHUNK_SIZE | 800 | 文本分块大小（字符） |
+| RETRIEVE_TOP_K | 10 | 召回段落数 |
+| SIMILARITY_THRESHOLD | 1.0 | 相似度阈值（距离值） |
+
+## 核心特性
+
+### 🔍 溯源问答
+回答必须引用原著原文，标注章节出处，确保有据可查。
+
+### 🚫 零幻觉输出
+当检索结果不足时，系统会明确拒答，绝不编造内容。
+
+### 📱 轻量化部署
+单机本地运行，无需云端服务，适合课程设计演示。
+
+## 测试用例
+
+| 测试类型 | 输入 | 预期输出 |
+|----------|------|----------|
+| 正常提问 | "林黛玉进贾府" | 基于原著回答，标注章节出处 |
+| 无匹配 | "量子力学原理" | "未在原著中找到相关内容，无法作答" |
+
+## 参与贡献
+
+1. Fork 本仓库
+2. 新建 Feature 分支
+3. 提交代码
+4. 发起 Pull Request
+
+## 许可证
+
+MIT License
+
+## 致谢
+
+- [Streamlit](https://streamlit.io/) - 快速构建数据应用
+- [LangChain](https://www.langchain.com/) - LLM 应用开发框架
+- [Chroma](https://www.trychroma.com/) - 轻量向量数据库
+- [Ollama](https://ollama.com/) - 本地大模型运行工具
