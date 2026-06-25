@@ -62,6 +62,33 @@ def save_book_history(book_title, history):
         logger.error("保存历史文件失败: %s", e)
 
 
+# 定义本地历史记录缓存文件名
+HISTORY_FILE = "chat_history_cache.json"
+
+
+def load_all_history():
+    """从本地 JSON 文件读取所有书籍的历史记录"""
+    if os.path.exists(HISTORY_FILE):
+        try:
+            with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            logger.error("读取历史文件失败: %s", e)
+    return {}
+
+
+def save_book_history(book_title, history):
+    """将当前书籍的历史记录保存到本地 JSON 文件中"""
+    try:
+        all_history = load_all_history()
+        # 以书名为 Key 隔离存储，如果没有书名则用 default
+        all_history[book_title or "default"] = history
+        with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+            json.dump(all_history, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logger.error("保存历史文件失败: %s", e)
+
+
 setup_logging()
 logger = logging.getLogger(__name__)
 
