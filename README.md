@@ -101,6 +101,7 @@ literary-ai-guide-master/
 | CHUNK_SIZE | 800 | 文本分块大小（字符） |
 | RETRIEVE_TOP_K | 10 | 召回段落数 |
 | SIMILARITY_THRESHOLD | 1.0 | 相似度阈值（距离值） |
+| PYTHON_EXE | C:\\Users\\Lenovo\\AppData\\Local\\Programs\\Python\\Python312\\python.exe | 本地 Python 解释器路径 |
 
 ## 核心特性
 

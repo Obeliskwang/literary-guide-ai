@@ -1,0 +1,461 @@
+{
+  "book": "西游记",
+  "characters": [
+    {
+      "id": "sun_wukong",
+      "name": "孙悟空",
+      "identity": "齐天大圣、斗战胜佛",
+      "description": "由仙石孕育而生，学得七十二变、筋斗云等神通，大闹天宫后被如来佛祖压在五行山下，后随唐僧西天取经",
+      "family": "花果山",
+      "role": "主要角色"
+    },
+    {
+      "id": "tang_seng",
+      "name": "唐僧",
+      "identity": "大唐高僧、旃檀功德佛",
+      "description": "唐太宗李世民的御弟，西天取经的领导者，慈悲为怀但有时迂腐",
+      "family": "大唐",
+      "role": "主要角色"
+    },
+    {
+      "id": "zhu_bajie",
+      "name": "猪八戒",
+      "identity": "天蓬元帅、净坛使者",
+      "description": "原是天庭天蓬元帅，因调戏嫦娥被贬下凡，后在高老庄被收服加入取经队伍",
+      "family": "高老庄",
+      "role": "主要角色"
+    },
+    {
+      "id": "sha_seng",
+      "name": "沙僧",
+      "identity": "卷帘大将、金身罗汉",
+      "description": "原是天庭卷帘大将，因打碎琉璃盏被贬流沙河，后加入取经队伍",
+      "family": "流沙河",
+      "role": "主要角色"
+    },
+    {
+      "id": "white_dragon",
+      "name": "白龙马",
+      "identity": "玉龙三太子、八部天龙广力菩萨",
+      "description": "西海龙王敖闰之子，因纵火烧毁玉帝赐予的明珠被贬，后化为白马驮唐僧取经",
+      "family": "西海龙族",
+      "role": "主要角色"
+    },
+    {
+      "id": "buddha",
+      "name": "如来佛祖",
+      "identity": "西天极乐世界教主",
+      "description": "佛教最高领袖，将孙悟空压在五行山下，赐予取经任务",
+      "family": "西天灵山",
+      "role": "重要角色"
+    },
+    {
+      "id": "guan_yin",
+      "name": "观世音菩萨",
+      "identity": "大慈大悲救苦救难菩萨",
+      "description": "多次帮助唐僧师徒化解危难，赐予法宝，点化取经人",
+      "family": "南海普陀山",
+      "role": "重要角色"
+    },
+    {
+      "id": "jade_emperor",
+      "name": "玉皇大帝",
+      "identity": "三界主宰",
+      "description": "天庭最高统治者，曾招安孙悟空，后因大闹天宫震怒",
+      "family": "天庭",
+      "role": "重要角色"
+    },
+    {
+      "id": "taishang_laojun",
+      "name": "太上老君",
+      "identity": "道祖",
+      "description": "道教最高神祇，孙悟空曾偷吃他的金丹，用八卦炉炼悟空",
+      "family": "天庭",
+      "role": "重要角色"
+    },
+    {
+      "id": "niangniang",
+      "name": "王母娘娘",
+      "identity": "瑶池主人",
+      "description": "掌管蟠桃盛会，孙悟空曾偷吃蟠桃",
+      "family": "天庭",
+      "role": "重要角色"
+    },
+    {
+      "id": "erlang",
+      "name": "二郎神",
+      "identity": "显圣真君",
+      "description": "玉皇大帝的外甥，曾与孙悟空斗法",
+      "family": "天庭",
+      "role": "重要角色"
+    },
+    {
+      "id": "nezha",
+      "name": "哪吒",
+      "identity": "三坛海会大神",
+      "description": "托塔李天王之子，曾参与围剿孙悟空",
+      "family": "天庭",
+      "role": "重要角色"
+    },
+    {
+      "id": "li_tianwang",
+      "name": "托塔李天王",
+      "identity": "天庭元帅",
+      "description": "率领天兵天将围剿孙悟空",
+      "family": "天庭",
+      "role": "重要角色"
+    },
+    {
+      "id": "tai_bai_jinxing",
+      "name": "太白金星",
+      "identity": "天庭使者",
+      "description": "两次招安孙悟空，多次暗中帮助唐僧师徒",
+      "family": "天庭",
+      "role": "重要角色"
+    },
+    {
+      "id": "lingji_pusa",
+      "name": "灵吉菩萨",
+      "identity": "小须弥山菩萨",
+      "description": "持有定风丹，帮助孙悟空收服黄风怪",
+      "family": "小须弥山",
+      "role": "重要角色"
+    },
+    {
+      "id": "landlord",
+      "name": "镇元大仙",
+      "identity": "五庄观主人",
+      "description": "地仙之祖，拥有人参果树，与孙悟空结拜",
+      "family": "五庄观",
+      "role": "重要角色"
+    },
+    {
+      "id": "dragon_king",
+      "name": "东海龙王",
+      "identity": "四海龙王之首",
+      "description": "孙悟空曾向他索取金箍棒和披挂",
+      "family": "东海龙族",
+      "role": "重要角色"
+    },
+    {
+      "id": "huangfeng_guai",
+      "name": "黄风怪",
+      "identity": "黄风岭妖王",
+      "description": "原是灵山脚下的老鼠，偷吃清油后成精，会吹黄风",
+      "family": "黄风岭",
+      "role": "妖怪角色"
+    },
+    {
+      "id": "bull_demon",
+      "name": "牛魔王",
+      "identity": "平天大圣",
+      "description": "孙悟空的结拜大哥，法力高强",
+      "family": "翠云山",
+      "role": "妖怪角色"
+    },
+    {
+      "id": "iron_fan",
+      "name": "铁扇公主",
+      "identity": "罗刹女",
+      "description": "牛魔王之妻，持有芭蕉扇",
+      "family": "翠云山",
+      "role": "妖怪角色"
+    },
+    {
+      "id": "red_child",
+      "name": "红孩儿",
+      "identity": "牛魔王之子",
+      "description": "号圣婴大王，会三昧真火，后被观音收为善财童子",
+      "family": "牛魔王",
+      "role": "妖怪角色"
+    },
+    {
+      "id": "black_wind_guai",
+      "name": "黑风怪",
+      "identity": "黑风山妖王",
+      "description": "偷走唐僧袈裟的妖怪，后被观音收服",
+      "family": "黑风山",
+      "role": "妖怪角色"
+    },
+    {
+      "id": "golden_hoop",
+      "name": "金角大王",
+      "identity": "平顶山妖王",
+      "description": "太上老君的童子，偷下凡间为妖",
+      "family": "平顶山",
+      "role": "妖怪角色"
+    },
+    {
+      "id": "silver_hoop",
+      "name": "银角大王",
+      "identity": "平顶山妖王",
+      "description": "太上老君的童子，金角大王的弟弟",
+      "family": "平顶山",
+      "role": "妖怪角色"
+    },
+    {
+      "id": "king_lion",
+      "name": "青狮精",
+      "identity": "狮驼岭大王",
+      "description": "文殊菩萨的坐骑，曾大闹狮驼岭",
+      "family": "狮驼岭",
+      "role": "妖怪角色"
+    },
+    {
+      "id": "elephant_spirit",
+      "name": "白象精",
+      "identity": "狮驼岭二大王",
+      "description": "普贤菩萨的坐骑",
+      "family": "狮驼岭",
+      "role": "妖怪角色"
+    },
+    {
+      "id": "golden_wing",
+      "name": "金翅大鹏雕",
+      "identity": "狮驼岭三大王",
+      "description": "如来佛祖的舅舅，法力高强",
+      "family": "狮驼岭",
+      "role": "妖怪角色"
+    }
+  ],
+  "relations": [
+    {"from": "sun_wukong", "to": "tang_seng", "relation": "师徒", "type": "family"},
+    {"from": "tang_seng", "to": "zhu_bajie", "relation": "师徒", "type": "family"},
+    {"from": "tang_seng", "to": "sha_seng", "relation": "师徒", "type": "family"},
+    {"from": "tang_seng", "to": "white_dragon", "relation": "师徒", "type": "family"},
+    {"from": "sun_wukong", "to": "zhu_bajie", "relation": "师兄弟", "type": "family"},
+    {"from": "sun_wukong", "to": "sha_seng", "relation": "师兄弟", "type": "family"},
+    {"from": "zhu_bajie", "to": "sha_seng", "relation": "师兄弟", "type": "family"},
+    {"from": "sun_wukong", "to": "bull_demon", "relation": "结拜兄弟", "type": "friendship"},
+    {"from": "bull_demon", "to": "iron_fan", "relation": "夫妻", "type": "family"},
+    {"from": "bull_demon", "to": "red_child", "relation": "父子", "type": "family"},
+    {"from": "iron_fan", "to": "red_child", "relation": "母子", "type": "family"},
+    {"from": "sun_wukong", "to": "guan_yin", "relation": "师徒", "type": "family"},
+    {"from": "sun_wukong", "to": "buddha", "relation": "师徒", "type": "family"},
+    {"from": "sun_wukong", "to": "jade_emperor", "relation": "敌对", "type": "conflict"},
+    {"from": "sun_wukong", "to": "taishang_laojun", "relation": "敌对", "type": "conflict"},
+    {"from": "sun_wukong", "to": "erlang", "relation": "敌对", "type": "conflict"},
+    {"from": "sun_wukong", "to": "huangfeng_guai", "relation": "敌对", "type": "conflict"},
+    {"from": "sun_wukong", "to": "black_wind_guai", "relation": "敌对", "type": "conflict"},
+    {"from": "sun_wukong", "to": "golden_hoop", "relation": "敌对", "type": "conflict"},
+    {"from": "sun_wukong", "to": "red_child", "relation": "敌对", "type": "conflict"},
+    {"from": "sun_wukong", "to": "king_lion", "relation": "敌对", "type": "conflict"},
+    {"from": "sun_wukong", "to": "golden_wing", "relation": "敌对", "type": "conflict"},
+    {"from": "guan_yin", "to": "tang_seng", "relation": "指导", "type": "friendship"},
+    {"from": "buddha", "to": "tang_seng", "relation": "授命", "type": "friendship"},
+    {"from": "tai_bai_jinxing", "to": "sun_wukong", "relation": "帮助", "type": "friendship"},
+    {"from": "lingji_pusa", "to": "sun_wukong", "relation": "帮助", "type": "friendship"},
+    {"from": "landlord", "to": "sun_wukong", "relation": "结拜", "type": "friendship"},
+    {"from": "taishang_laojun", "to": "golden_hoop", "relation": "主仆", "type": "family"},
+    {"from": "taishang_laojun", "to": "silver_hoop", "relation": "主仆", "type": "family"},
+    {"from": "jade_emperor", "to": "li_tianwang", "relation": "君臣", "type": "family"},
+    {"from": "li_tianwang", "to": "nezha", "relation": "父子", "type": "family"},
+    {"from": "king_lion", "to": "elephant_spirit", "relation": "结拜", "type": "friendship"},
+    {"from": "king_lion", "to": "golden_wing", "relation": "结拜", "type": "friendship"},
+    {"from": "elephant_spirit", "to": "golden_wing", "relation": "结拜", "type": "friendship"},
+    {"from": "dragon_king", "to": "sun_wukong", "relation": "帮助", "type": "friendship"}
+  ],
+  "events": [
+    {
+      "id": "event_1",
+      "name": "石猴出世",
+      "chapter": "第1回",
+      "description": "东胜神洲傲来国花果山的仙石迸裂，石猴孙悟空诞生",
+      "characters": ["sun_wukong"]
+    },
+    {
+      "id": "event_2",
+      "name": "拜师学艺",
+      "chapter": "第1回",
+      "description": "孙悟空漂洋过海拜菩提祖师为师，学得七十二变和筋斗云",
+      "characters": ["sun_wukong"]
+    },
+    {
+      "id": "event_3",
+      "name": "大闹龙宫",
+      "chapter": "第2回",
+      "description": "孙悟空到东海龙宫索取如意金箍棒和披挂",
+      "characters": ["sun_wukong", "dragon_king"]
+    },
+    {
+      "id": "event_4",
+      "name": "大闹天宫",
+      "chapter": "第3回",
+      "description": "孙悟空嫌弼马温官小，反下天庭自封齐天大圣，搅乱蟠桃会和丹房",
+      "characters": ["sun_wukong", "jade_emperor", "taishang_laojun", "niangniang", "erlang", "nezha", "li_tianwang"]
+    },
+    {
+      "id": "event_5",
+      "name": "压五行山",
+      "chapter": "第3回",
+      "description": "如来佛祖将孙悟空压在五行山下，等待取经人",
+      "characters": ["sun_wukong", "buddha"]
+    },
+    {
+      "id": "event_6",
+      "name": "观音点化",
+      "chapter": "第4回",
+      "description": "观世音菩萨点化唐僧前往西天取经，并赐予袈裟和禅杖",
+      "characters": ["tang_seng", "guan_yin"]
+    },
+    {
+      "id": "event_7",
+      "name": "收徒悟空",
+      "chapter": "第4回",
+      "description": "唐僧救出孙悟空，收为大徒弟",
+      "characters": ["tang_seng", "sun_wukong"]
+    },
+    {
+      "id": "event_8",
+      "name": "收白龙马",
+      "chapter": "第5回",
+      "description": "鹰愁涧收白龙马为坐骑",
+      "characters": ["tang_seng", "sun_wukong", "white_dragon", "guan_yin"]
+    },
+    {
+      "id": "event_9",
+      "name": "斗黑风怪",
+      "chapter": "第6回",
+      "description": "观音院斗宝失袈裟，悟空收伏黑风怪",
+      "characters": ["sun_wukong", "black_wind_guai", "guan_yin"]
+    },
+    {
+      "id": "event_10",
+      "name": "高老庄收八戒",
+      "chapter": "第7回",
+      "description": "孙悟空在高老庄收服猪八戒，收为二徒弟",
+      "characters": ["sun_wukong", "zhu_bajie", "tang_seng"]
+    },
+    {
+      "id": "event_11",
+      "name": "黄风洞降妖",
+      "chapter": "第8回",
+      "description": "黄风岭黄风怪作乱，灵吉菩萨相助降妖",
+      "characters": ["sun_wukong", "zhu_bajie", "huangfeng_guai", "lingji_pusa"]
+    },
+    {
+      "id": "event_12",
+      "name": "流沙河收沙僧",
+      "chapter": "第9回",
+      "description": "师徒三人在流沙河收服沙僧，收为三徒弟",
+      "characters": ["tang_seng", "sun_wukong", "zhu_bajie", "sha_seng"]
+    },
+    {
+      "id": "event_13",
+      "name": "试禅心",
+      "chapter": "第10回",
+      "description": "黎山老母、观音、普贤、文殊四圣试禅心，八戒受戒",
+      "characters": ["tang_seng", "sun_wukong", "zhu_bajie", "sha_seng", "guan_yin"]
+    },
+    {
+      "id": "event_14",
+      "name": "五庄观偷吃人参果",
+      "chapter": "第11回",
+      "description": "孙悟空偷吃人参果，推倒人参果树，后请观音菩萨救活",
+      "characters": ["sun_wukong", "zhu_bajie", "sha_seng", "landlord", "guan_yin"]
+    },
+    {
+      "id": "event_15",
+      "name": "三借芭蕉扇",
+      "chapter": "第59-61回",
+      "description": "师徒过火焰山，孙悟空三借芭蕉扇",
+      "characters": ["sun_wukong", "iron_fan", "bull_demon", "red_child"]
+    },
+    {
+      "id": "event_16",
+      "name": "狮驼岭降妖",
+      "chapter": "第74-77回",
+      "description": "狮驼岭三大王青狮、白象、大鹏阻挡取经路",
+      "characters": ["sun_wukong", "king_lion", "elephant_spirit", "golden_wing", "buddha"]
+    },
+    {
+      "id": "event_17",
+      "name": "取得真经",
+      "chapter": "第98-100回",
+      "description": "师徒到达西天取得真经，返回东土大唐",
+      "characters": ["tang_seng", "sun_wukong", "zhu_bajie", "sha_seng", "white_dragon", "buddha"]
+    }
+  ],
+  "character_events": [
+    {
+      "character_id": "sun_wukong",
+      "events": ["event_1", "event_2", "event_3", "event_4", "event_5", "event_7", "event_8", "event_9", "event_10", "event_11", "event_12", "event_13", "event_14", "event_15", "event_16", "event_17"]
+    },
+    {
+      "character_id": "tang_seng",
+      "events": ["event_6", "event_7", "event_8", "event_10", "event_11", "event_12", "event_13", "event_14", "event_17"]
+    },
+    {
+      "character_id": "zhu_bajie",
+      "events": ["event_10", "event_11", "event_12", "event_13", "event_14", "event_17"]
+    },
+    {
+      "character_id": "sha_seng",
+      "events": ["event_12", "event_13", "event_14", "event_17"]
+    },
+    {
+      "character_id": "white_dragon",
+      "events": ["event_8", "event_17"]
+    },
+    {
+      "character_id": "buddha",
+      "events": ["event_5", "event_16", "event_17"]
+    },
+    {
+      "character_id": "guan_yin",
+      "events": ["event_6", "event_8", "event_9", "event_13", "event_14"]
+    },
+    {
+      "character_id": "bull_demon",
+      "events": ["event_15"]
+    },
+    {
+      "character_id": "iron_fan",
+      "events": ["event_15"]
+    },
+    {
+      "character_id": "red_child",
+      "events": ["event_15"]
+    },
+    {
+      "character_id": "king_lion",
+      "events": ["event_16"]
+    },
+    {
+      "character_id": "golden_wing",
+      "events": ["event_16"]
+    },
+    {
+      "character_id": "landlord",
+      "events": ["event_14"]
+    },
+    {
+      "character_id": "dragon_king",
+      "events": ["event_3"]
+    },
+    {
+      "character_id": "jade_emperor",
+      "events": ["event_4"]
+    },
+    {
+      "character_id": "taishang_laojun",
+      "events": ["event_4"]
+    },
+    {
+      "character_id": "lingji_pusa",
+      "events": ["event_11"]
+    },
+    {
+      "character_id": "tai_bai_jinxing",
+      "events": ["event_4"]
+    },
+    {
+      "character_id": "huangfeng_guai",
+      "events": ["event_11"]
+    },
+    {
+      "character_id": "black_wind_guai",
+      "events": ["event_9"]
+    }
+  ]
+}
