@@ -25,8 +25,8 @@ OLLAMA_EMBED_MODEL = "bge-m3"
 # OpenAI settings
 OPENAI_LLM_MODEL = "gpt-5.4"
 OPENAI_EMBED_MODEL = "text-embedding-3-large"
-OPENAI_API_KEY = ""
-OPENAI_BASE_URL = ""
+OPENAI_API_KEY = "sk-cpAdXIR1irGGoQFD185fA4517cEa4e00B1523292Ab884dDb"
+OPENAI_BASE_URL = "https://apis.itedus.cn/v1"
 
 # 当前生效的模型（根据类型自动选择）
 LLM_MODEL = OPENAI_LLM_MODEL if LLM_TYPE == "openai" else OLLAMA_LLM_MODEL

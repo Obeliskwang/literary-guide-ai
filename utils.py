@@ -1,4 +1,4 @@
-import streamlit as st
+﻿﻿import streamlit as st
 import html
 import json
 import uuid
@@ -9,11 +9,12 @@ from character_service import generate_mermaid_graph, generate_mermaid_graph_fam
 DATA_DIR = Path(__file__).resolve().parent / "data"
 BOOKS_METADATA_FILE = DATA_DIR / "books.json"
 
+
 def load_books_metadata():
     """加载书籍元数据索引"""
     if not BOOKS_METADATA_FILE.exists():
         return []
-    
+
     try:
         with open(BOOKS_METADATA_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
@@ -21,27 +22,30 @@ def load_books_metadata():
         print(f"Failed to load books metadata: {e}")
         return []
 
+
 def save_books_metadata(books):
     """保存书籍元数据索引"""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     with open(BOOKS_METADATA_FILE, "w", encoding="utf-8") as f:
         json.dump(books, f, ensure_ascii=False, indent=2)
 
+
 def create_new_book(book_name):
     """创建新书籍"""
     books = load_books_metadata()
     book_id = str(uuid.uuid4())[:8]
-    
+
     new_book = {
         "id": book_id,
         "name": book_name,
         "created_at": datetime.now().isoformat(),
-        "files": []
+        "files": [],
     }
-    
+
     books.append(new_book)
     save_books_metadata(books)
     return book_id
+
 
 def add_file_to_book(book_id, file_name, chunk_count=0):
     """向书籍添加文件记录"""
@@ -49,15 +53,18 @@ def add_file_to_book(book_id, file_name, chunk_count=0):
     for book in books:
         if book["id"] == book_id:
             file_id = str(uuid.uuid4())[:8]
-            book["files"].append({
-                "id": file_id,
-                "name": file_name,
-                "uploaded_at": datetime.now().isoformat(),
-                "chunk_count": chunk_count
-            })
+            book["files"].append(
+                {
+                    "id": file_id,
+                    "name": file_name,
+                    "uploaded_at": datetime.now().isoformat(),
+                    "chunk_count": chunk_count,
+                }
+            )
             save_books_metadata(books)
             return file_id
     return None
+
 
 def remove_file_from_book(book_id, file_id):
     """从书籍中移除文件记录"""
@@ -69,6 +76,7 @@ def remove_file_from_book(book_id, file_id):
             return True
     return False
 
+
 def get_book_by_id(book_id):
     """根据ID获取书籍信息"""
     books = load_books_metadata()
@@ -77,11 +85,28 @@ def get_book_by_id(book_id):
             return book
     return None
 
+
 def delete_book(book_id):
     """删除书籍"""
     books = load_books_metadata()
     books = [b for b in books if b["id"] != book_id]
     save_books_metadata(books)
+
+
+def rename_book(book_id, new_name):
+    """重命名书籍"""
+    new_name = (new_name or "").strip()
+    if not new_name:
+        return False
+
+    books = load_books_metadata()
+    for book in books:
+        if book["id"] == book_id:
+            book["name"] = new_name
+            save_books_metadata(books)
+            return True
+    return False
+
 
 def get_total_chunk_count(book):
     """获取书籍总分块数"""
