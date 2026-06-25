@@ -18,8 +18,19 @@ from character_service import (
     get_events,
     get_character_events,
 )
+from exercise_service import (
+    get_exercises,
+    get_exercise_by_id,
+    get_all_chapters,
+    get_book_title as get_exercises_book_title,
+    get_total_count,
+)
 from utils import render_mermaid
-from book_manager import init_book_session_state, render_bookshelf_sidebar, render_book_manager_dialog
+from book_manager import (
+    init_book_session_state,
+    render_bookshelf_sidebar,
+    render_book_manager_dialog,
+)
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -53,7 +64,7 @@ def init_session_state():
 
 init_session_state()
 
-page = st.sidebar.selectbox("选择页面", ["智能问答", "人物关系"])
+page = st.sidebar.selectbox("选择页面", ["智能问答", "人物关系", "练习题"])
 st.title("伴读精灵 - 经典文学名著导赏问答系统")
 
 render_book_manager_dialog()
@@ -128,7 +139,9 @@ if page == "智能问答":
                 for j, source in enumerate(chat["sources"]):
                     if j < 3:
                         chapter = source.get("metadata", {}).get("chapter", "未知章节")
-                        file_name = source.get("metadata", {}).get("file_name", "未知文件")
+                        file_name = source.get("metadata", {}).get(
+                            "file_name", "未知文件"
+                        )
                         st.write(f"片段{j+1}：{file_name} - {chapter}")
                         st.write(
                             f"> {source['text'][:300]}{'...' if len(source['text']) > 300 else ''}"
@@ -246,3 +259,215 @@ elif page == "人物关系":
                         if char:
                             char_names.append(char["name"])
                     st.write(", ".join(char_names))
+
+elif page == "练习题":
+    st.header("练习题")
+
+    # 初始化练习题相关的session_state
+    if "exercise_mode" not in st.session_state:
+        st.session_state.exercise_mode = "做题"  # 做题 / 结果
+    if "current_exercise_index" not in st.session_state:
+        st.session_state.current_exercise_index = 0
+    if "user_answers" not in st.session_state:
+        st.session_state.user_answers = {}
+    if "submitted" not in st.session_state:
+        st.session_state.submitted = False
+
+    book_title = get_exercises_book_title()
+    if book_title:
+        st.subheader(f"《{book_title}》练习题")
+
+    # 加载所有题目
+    all_exercises = get_exercises()
+    total_count = len(all_exercises)
+
+    if total_count == 0:
+        st.info("暂无练习题")
+    else:
+        # 模式切换按钮
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            if st.button(
+                "做题模式",
+                use_container_width=True,
+                type=(
+                    "primary"
+                    if st.session_state.exercise_mode == "做题"
+                    else "secondary"
+                ),
+            ):
+                st.session_state.exercise_mode = "做题"
+                st.session_state.submitted = False
+        with col2:
+            if st.button(
+                "查看结果",
+                use_container_width=True,
+                type=(
+                    "primary"
+                    if st.session_state.exercise_mode == "结果"
+                    else "secondary"
+                ),
+            ):
+                st.session_state.exercise_mode = "结果"
+
+        st.markdown("---")
+
+        if st.session_state.exercise_mode == "做题":
+            # 做题模式
+            st.write(f"题目总数：{total_count} 题")
+            st.write(f"已作答：{len(st.session_state.user_answers)} 题")
+
+            # 按章节筛选
+            chapters = get_all_chapters()
+            selected_chapter = st.selectbox("按章节筛选", ["全部"] + chapters)
+
+            # 获取当前显示的题目列表
+            if selected_chapter == "全部":
+                display_exercises = all_exercises
+            else:
+                display_exercises = [
+                    e for e in all_exercises if e.get("chapter") == selected_chapter
+                ]
+
+            if len(display_exercises) == 0:
+                st.info("该章节暂无练习题")
+            else:
+                # 限制显示的题目数量
+                max_display = 5
+                display_count = min(len(display_exercises), max_display)
+                st.write(f"显示前 {display_count} 题，共 {len(display_exercises)} 题")
+
+                # 逐题显示
+                for idx in range(display_count):
+                    exercise = display_exercises[idx]
+                    exercise_id = exercise["id"]
+
+                    st.markdown(f"**题目 {idx + 1}** (ID: {exercise_id})")
+                    st.write(f"章节：{exercise.get('chapter', '未知')}")
+                    st.write(exercise["question"])
+
+                    # 选项列表
+                    options = exercise.get("options", [])
+
+                    # 检查是否已作答
+                    current_answer = st.session_state.user_answers.get(exercise_id)
+
+                    # 根据是否提交显示不同的选择组件
+                    if not st.session_state.submitted:
+                        # 未提交时，显示radio让用户选择
+                        selected_idx = st.radio(
+                            "请选择答案",
+                            options=range(len(options)),
+                            format_func=lambda x: f"{chr(65 + x)}. {options[x]}",
+                            key=f"radio_{exercise_id}",
+                            index=current_answer if current_answer is not None else 0,
+                        )
+
+                        if selected_idx is not None:
+                            st.session_state.user_answers[exercise_id] = selected_idx
+                    else:
+                        # 已提交时，显示答案对照
+                        correct_idx = exercise["answer"]
+                        for opt_idx, opt_text in enumerate(options):
+                            col_a, col_b = st.columns([4, 1])
+                            with col_a:
+                                if opt_idx == correct_idx:
+                                    st.success(
+                                        f"{chr(65 + opt_idx)}. {opt_text} (正确答案)"
+                                    )
+                                elif (
+                                    opt_idx == current_answer and opt_idx != correct_idx
+                                ):
+                                    st.error(
+                                        f"{chr(65 + opt_idx)}. {opt_text} (你的答案 - 错误)"
+                                    )
+                                else:
+                                    st.write(f"{chr(65 + opt_idx)}. {opt_text}")
+                            with col_b:
+                                pass
+
+                        # 显示解析
+                        st.info(f"**解析**：{exercise.get('explanation', '')}")
+
+                    st.markdown("---")
+
+                # 提交按钮
+                if st.button("提交答案", type="primary", use_container_width=True):
+                    st.session_state.submitted = True
+                    st.rerun()
+
+                # 进度提示
+                answered_count = len(st.session_state.user_answers)
+                progress = answered_count / total_count if total_count > 0 else 0
+                st.progress(progress, text=f"已完成 {answered_count}/{total_count} 题")
+
+        else:
+            # 结果模式
+            st.header("答题结果")
+
+            if len(st.session_state.user_answers) == 0:
+                st.info("请先完成做题后再查看结果")
+            else:
+                # 计算正确率
+                correct_count = 0
+                wrong_exercises = []
+
+                for exercise_id, user_answer in st.session_state.user_answers.items():
+                    exercise = get_exercise_by_id(exercise_id)
+                    if exercise:
+                        correct_idx = exercise["answer"]
+                        if user_answer == correct_idx:
+                            correct_count += 1
+                        else:
+                            wrong_exercises.append(exercise)
+
+                total_answered = len(st.session_state.user_answers)
+                accuracy = (
+                    (correct_count / total_answered * 100) if total_answered > 0 else 0
+                )
+
+                # 显示统计信息
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("已作答", f"{total_answered} 题")
+                with col2:
+                    st.metric("正确", f"{correct_count} 题", delta_color="normal")
+                with col3:
+                    st.metric(
+                        "正确率",
+                        f"{accuracy:.1f}%",
+                        delta_color="normal" if accuracy >= 60 else "inverse",
+                    )
+
+                st.markdown("---")
+
+                # 显示错题列表
+                if wrong_exercises:
+                    st.subheader(f"错题分析 (共 {len(wrong_exercises)} 题)")
+
+                    for idx, exercise in enumerate(wrong_exercises, 1):
+                        user_answer = st.session_state.user_answers.get(exercise["id"])
+                        correct_idx = exercise["answer"]
+                        options = exercise.get("options", [])
+
+                        with st.expander(f"错题 {idx}：{exercise['question'][:30]}..."):
+                            st.write(f"**章节**：{exercise.get('chapter', '未知')}")
+                            st.write(f"**题目**：{exercise['question']}")
+                            st.write(
+                                f"**你的答案**：{chr(65 + user_answer) if user_answer is not None else '未作答'}. {options[user_answer] if user_answer is not None and user_answer < len(options) else '无效答案'}"
+                            )
+                            st.write(
+                                f"**正确答案**：{chr(65 + correct_idx)}. {options[correct_idx]}"
+                            )
+                            st.write(f"**解析**：{exercise.get('explanation', '')}")
+                else:
+                    st.success("恭喜！所有已作答的题目都正确！")
+
+                # 重新开始按钮
+                st.markdown("---")
+                if st.button("重新开始", type="secondary", use_container_width=True):
+                    st.session_state.exercise_mode = "做题"
+                    st.session_state.current_exercise_index = 0
+                    st.session_state.user_answers = {}
+                    st.session_state.submitted = False
+                    st.rerun()

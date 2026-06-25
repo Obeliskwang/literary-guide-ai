@@ -54,7 +54,9 @@ def init_book_session_state():
     if "book_search_query" not in st.session_state:
         st.session_state.book_search_query = ""
     if "new_book_name" not in st.session_state:
-        st.session_state.new_book_name = ""
+        st.session_state.new_book_name = None
+    if "book_list_page" not in st.session_state:
+        st.session_state.book_list_page = 1
     if "editing_book_id" not in st.session_state:
         st.session_state.editing_book_id = ""
     if "editing_book_name" not in st.session_state:
@@ -98,6 +100,41 @@ def select_book(book_id):
         st.session_state.selected_book_id = book_id
 
 
+PAGE_SIZE = 3
+
+
+def _render_pagination(total_pages, key_prefix="book_list"):
+    """渲染分页控件"""
+    current_page = st.session_state.book_list_page
+    cols = st.columns([1, 1, 1, 1, 1])
+
+    with cols[0]:
+        if st.button(
+            "‹",
+            key=f"{key_prefix}_prev",
+            disabled=current_page <= 1,
+            use_container_width=True,
+        ):
+            st.session_state.book_list_page = current_page - 1
+            _safe_rerun()
+
+    with cols[2]:
+        st.markdown(
+            f"<div style='text-align:center; padding:8px 0;'>{current_page} / {total_pages}</div>",
+            unsafe_allow_html=True,
+        )
+
+    with cols[4]:
+        if st.button(
+            "›",
+            key=f"{key_prefix}_next",
+            disabled=current_page >= total_pages,
+            use_container_width=True,
+        ):
+            st.session_state.book_list_page = current_page + 1
+            _safe_rerun()
+
+
 def _render_book_manager_content():
     """渲染书籍管理内容（用于popover或dialog）"""
     st.caption("搜索、创建、编辑、删除书籍知识库")
@@ -107,10 +144,16 @@ def _render_book_manager_content():
         placeholder="输入书名或书籍ID实时筛选列表",
         key="book_search_input",
     )
-    st.session_state.book_search_query = query
 
     books = load_books_metadata()
     filtered_books = [b for b in books if _book_matches_query(b, query)]
+
+    if query != st.session_state.book_search_query:
+        st.session_state.book_search_query = query
+        st.session_state.book_list_page = 1
+        _safe_rerun()
+
+    st.session_state.book_search_query = query
 
     col_new, col_spacer = st.columns([2, 3])
     with col_new:
@@ -148,12 +191,22 @@ def _render_book_manager_content():
     if not filtered_books:
         st.info("没有找到匹配的书籍")
     else:
+        total_pages = max(1, (len(filtered_books) + PAGE_SIZE - 1) // PAGE_SIZE)
+        current_page = st.session_state.book_list_page
+
+        if current_page > total_pages:
+            st.session_state.book_list_page = total_pages
+            current_page = total_pages
+
+        start_idx = (current_page - 1) * PAGE_SIZE
+        end_idx = start_idx + PAGE_SIZE
+        page_books = filtered_books[start_idx:end_idx]
+
         selected_id = (
-            st.session_state.selected_book_id
-            or st.session_state.current_book_id
+            st.session_state.selected_book_id or st.session_state.current_book_id
         )
 
-        for book in filtered_books:
+        for book in page_books:
             is_selected = book["id"] == selected_id
             is_editing = book["id"] == st.session_state.editing_book_id
 
@@ -190,7 +243,9 @@ def _render_book_manager_content():
 
                 with col_edit:
                     if is_editing:
-                        if st.button("保存", key=f"save_{book['id']}", use_container_width=True):
+                        if st.button(
+                            "保存", key=f"save_{book['id']}", use_container_width=True
+                        ):
                             name = edit_name.strip()
                             if name:
                                 rename_book(book["id"], name)
@@ -202,18 +257,26 @@ def _render_book_manager_content():
                                 _safe_rerun()
                             else:
                                 st.warning("书籍名称不能为空")
-                        if st.button("取消", key=f"cancel_edit_{book['id']}", use_container_width=True):
+                        if st.button(
+                            "取消",
+                            key=f"cancel_edit_{book['id']}",
+                            use_container_width=True,
+                        ):
                             st.session_state.editing_book_id = ""
                             st.session_state.editing_book_name = ""
                             _safe_rerun()
                     else:
-                        if st.button("编辑", key=f"edit_{book['id']}", use_container_width=True):
+                        if st.button(
+                            "编辑", key=f"edit_{book['id']}", use_container_width=True
+                        ):
                             st.session_state.editing_book_id = book["id"]
                             st.session_state.editing_book_name = book["name"]
                             _safe_rerun()
 
                 with col_del:
-                    if st.button("删除", key=f"del_{book['id']}", use_container_width=True):
+                    if st.button(
+                        "删除", key=f"del_{book['id']}", use_container_width=True
+                    ):
                         st.session_state.delete_confirm_id = book["id"]
                         _safe_rerun()
 
@@ -221,8 +284,15 @@ def _render_book_manager_content():
                     st.warning(f"确定要删除《{book['name']}》吗？此操作不可恢复！")
                     col_confirm, col_cancel_del = st.columns(2)
                     with col_confirm:
-                        if st.button("确认删除", key=f"confirm_del_{book['id']}", use_container_width=True, type="primary"):
-                            is_current_book = st.session_state.current_book_id == book["id"]
+                        if st.button(
+                            "确认删除",
+                            key=f"confirm_del_{book['id']}",
+                            use_container_width=True,
+                            type="primary",
+                        ):
+                            is_current_book = (
+                                st.session_state.current_book_id == book["id"]
+                            )
                             if is_current_book:
                                 st.session_state.vectordb = None
                             delete_book_vector_store(book["id"])
@@ -237,9 +307,16 @@ def _render_book_manager_content():
                             st.success("书籍已删除")
                             _safe_rerun()
                     with col_cancel_del:
-                        if st.button("取消", key=f"cancel_del_{book['id']}", use_container_width=True):
+                        if st.button(
+                            "取消",
+                            key=f"cancel_del_{book['id']}",
+                            use_container_width=True,
+                        ):
                             st.session_state.delete_confirm_id = ""
                             _safe_rerun()
+
+        if total_pages > 1:
+            _render_pagination(total_pages)
 
     st.markdown("---")
     if st.button("确定选择", use_container_width=True, type="primary"):
@@ -330,9 +407,7 @@ def render_bookshelf_sidebar():
                         key=f"btn_delete_file_{file['id']}",
                         use_container_width=True,
                     ):
-                        delete_file_chunks(
-                            st.session_state.current_book_id, file["id"]
-                        )
+                        delete_file_chunks(st.session_state.current_book_id, file["id"])
                         remove_file_from_book(
                             st.session_state.current_book_id, file["id"]
                         )
@@ -342,7 +417,9 @@ def render_bookshelf_sidebar():
 
     st.markdown("---")
     st.markdown("**书籍管理**")
-    current_book_name = st.session_state.current_book if st.session_state.current_book else "未选择书籍"
+    current_book_name = (
+        st.session_state.current_book if st.session_state.current_book else "未选择书籍"
+    )
     st.caption(f"当前书籍：{current_book_name}")
 
     with st.popover("书籍管理", use_container_width=True):
@@ -355,10 +432,17 @@ def render_bookshelf_sidebar():
                 st.session_state.delete_current_book_confirm = True
                 _safe_rerun()
         else:
-            st.warning(f"确定要删除《{st.session_state.current_book}》吗？此操作不可恢复！")
+            st.warning(
+                f"确定要删除《{st.session_state.current_book}》吗？此操作不可恢复！"
+            )
             col_confirm, col_cancel = st.columns(2)
             with col_confirm:
-                if st.button("确认删除", key="confirm_delete_current", use_container_width=True, type="primary"):
+                if st.button(
+                    "确认删除",
+                    key="confirm_delete_current",
+                    use_container_width=True,
+                    type="primary",
+                ):
                     st.session_state.vectordb = None
                     delete_book_vector_store(st.session_state.current_book_id)
                     delete_book(st.session_state.current_book_id)
@@ -369,7 +453,9 @@ def render_bookshelf_sidebar():
                     st.success("书籍已删除")
                     _safe_rerun()
             with col_cancel:
-                if st.button("取消", key="cancel_delete_current", use_container_width=True):
+                if st.button(
+                    "取消", key="cancel_delete_current", use_container_width=True
+                ):
                     st.session_state.delete_current_book_confirm = False
                     _safe_rerun()
 
