@@ -24,8 +24,21 @@ def escape_mermaid_text(text: str) -> str:
     )
 
 
-def load_characters_data(file_name="characters.json"):
-    """加载人物关系数据"""
+def load_characters_data(book_name=None):
+    """加载人物关系数据
+
+    Args:
+        book_name: 书籍名称，传入时生成文件名 characters_{book_name}.json
+                   不传时使用默认文件名 characters.json（保持向后兼容）
+
+    Returns:
+        包含人物关系数据的字典
+    """
+    if book_name:
+        file_name = f"characters_{book_name}.json"
+    else:
+        file_name = "characters.json"
+
     file_path = DATA_DIR / file_name
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -34,43 +47,80 @@ def load_characters_data(file_name="characters.json"):
         return data
     except FileNotFoundError:
         logger.error(f"Character data file not found: {file_path}")
-        return {"book": "", "characters": [], "relations": []}
+        return {"book": book_name or "", "characters": [], "relations": []}
     except json.JSONDecodeError as e:
         logger.error(f"Failed to parse character data: {e}")
-        return {"book": "", "characters": [], "relations": []}
+        return {"book": book_name or "", "characters": [], "relations": []}
 
 
-def get_characters():
-    """获取所有人物列表"""
-    data = load_characters_data()
+def get_characters(book_name=None):
+    """获取所有人物列表
+
+    Args:
+        book_name: 书籍名称
+
+    Returns:
+        人物列表
+    """
+    data = load_characters_data(book_name)
     return data.get("characters", [])
 
 
-def get_character_by_id(char_id):
-    """根据ID获取人物信息"""
-    characters = get_characters()
+def get_character_by_id(char_id, book_name=None):
+    """根据ID获取人物信息
+
+    Args:
+        char_id: 人物ID
+        book_name: 书籍名称
+
+    Returns:
+        人物字典，若不存在返回None
+    """
+    characters = get_characters(book_name)
     for char in characters:
         if char.get("id") == char_id:
             return char
     return None
 
 
-def get_relations():
-    """获取所有关系列表"""
-    data = load_characters_data()
+def get_relations(book_name=None):
+    """获取所有关系列表
+
+    Args:
+        book_name: 书籍名称
+
+    Returns:
+        关系列表
+    """
+    data = load_characters_data(book_name)
     return data.get("relations", [])
 
 
-def get_book_title():
-    """获取书籍名称"""
-    data = load_characters_data()
-    return data.get("book", "")
+def get_book_title(book_name=None):
+    """获取书籍名称
+
+    Args:
+        book_name: 书籍名称
+
+    Returns:
+        书籍名称字符串
+    """
+    data = load_characters_data(book_name)
+    return data.get("book", book_name or "")
 
 
-def get_character_relations(char_id):
-    """获取某个人物的所有关系"""
-    relations = get_relations()
-    characters = get_characters()
+def get_character_relations(char_id, book_name=None):
+    """获取某个人物的所有关系
+
+    Args:
+        char_id: 人物ID
+        book_name: 书籍名称
+
+    Returns:
+        关系列表
+    """
+    relations = get_relations(book_name)
+    characters = get_characters(book_name)
 
     result = []
     char_name_map = {c["id"]: c["name"] for c in characters}
@@ -98,10 +148,18 @@ def get_character_relations(char_id):
     return result
 
 
-def generate_mermaid_graph(main_char_id=None):
-    """生成 Mermaid 关系图代码"""
-    characters = get_characters()
-    relations = get_relations()
+def generate_mermaid_graph(main_char_id=None, book_name=None):
+    """生成 Mermaid 关系图代码
+
+    Args:
+        main_char_id: 主要人物ID（可选），传入时只显示相关人物和关系
+        book_name: 书籍名称
+
+    Returns:
+        Mermaid 图表代码字符串
+    """
+    characters = get_characters(book_name)
+    relations = get_relations(book_name)
 
     if main_char_id:
         filtered_relations = []
@@ -145,15 +203,22 @@ def generate_mermaid_graph(main_char_id=None):
     return mermaid_code
 
 
-def generate_mermaid_graph_family():
-    """生成取经团队关系图"""
-    characters = get_characters()
-    relations = get_relations()
+def generate_mermaid_graph_family(book_name=None):
+    """生成主要角色关系图
 
-    # 获取取经团队人物（主要角色）
+    Args:
+        book_name: 书籍名称
+
+    Returns:
+        Mermaid 图表代码字符串
+    """
+    characters = get_characters(book_name)
+    relations = get_relations(book_name)
+
+    # 获取主要角色
     main_chars = [c for c in characters if c.get("role") == "主要角色"]
 
-    # 获取与取经团队相关的关系
+    # 获取与主要角色相关的关系
     main_char_ids = [c["id"] for c in main_chars]
     team_relations = []
     for rel in relations:
@@ -188,15 +253,30 @@ def generate_mermaid_graph_family():
     return mermaid_code
 
 
-def get_characters_by_family(family_name):
-    """按家族筛选人物"""
-    characters = get_characters()
+def get_characters_by_family(family_name, book_name=None):
+    """按家族筛选人物
+
+    Args:
+        family_name: 家族名称
+        book_name: 书籍名称
+
+    Returns:
+        该家族的人物列表
+    """
+    characters = get_characters(book_name)
     return [c for c in characters if c.get("family") == family_name]
 
 
-def get_all_families():
-    """获取所有家族列表"""
-    characters = get_characters()
+def get_all_families(book_name=None):
+    """获取所有家族列表
+
+    Args:
+        book_name: 书籍名称
+
+    Returns:
+        家族名称列表（已排序）
+    """
+    characters = get_characters(book_name)
     families = set()
     for char in characters:
         family = char.get("family")
@@ -205,15 +285,30 @@ def get_all_families():
     return sorted(list(families))
 
 
-def get_events():
-    """获取所有核心事件列表"""
-    data = load_characters_data()
+def get_events(book_name=None):
+    """获取所有核心事件列表
+
+    Args:
+        book_name: 书籍名称
+
+    Returns:
+        事件列表
+    """
+    data = load_characters_data(book_name)
     return data.get("events", [])
 
 
-def get_character_events(char_id):
-    """获取某个人物参与的所有事件"""
-    data = load_characters_data()
+def get_character_events(char_id, book_name=None):
+    """获取某个人物参与的所有事件
+
+    Args:
+        char_id: 人物ID
+        book_name: 书籍名称
+
+    Returns:
+        事件列表
+    """
+    data = load_characters_data(book_name)
     character_events = data.get("character_events", [])
     events = data.get("events", [])
 
@@ -231,9 +326,17 @@ def get_character_events(char_id):
     return char_events
 
 
-def get_event_by_id(event_id):
-    """根据事件ID获取事件详情"""
-    events = get_events()
+def get_event_by_id(event_id, book_name=None):
+    """根据事件ID获取事件详情
+
+    Args:
+        event_id: 事件ID
+        book_name: 书籍名称
+
+    Returns:
+        事件字典，若不存在返回None
+    """
+    events = get_events(book_name)
     for event in events:
         if event.get("id") == event_id:
             return event

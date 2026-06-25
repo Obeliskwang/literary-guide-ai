@@ -1,0 +1,216 @@
+{
+  "book": "红楼梦",
+  "description": "红楼梦练习题库",
+  "exercises": [
+    {
+      "id": "hlm001",
+      "chapter": "第一回",
+      "question": "《红楼梦》的作者是谁？",
+      "options": [
+        "罗贯中",
+        "施耐庵",
+        "曹雪芹",
+        "吴承恩"
+      ],
+      "answer": 2,
+      "explanation": "《红楼梦》是清代作家曹雪芹创作的章回体长篇小说。",
+      "difficulty": "easy"
+    },
+    {
+      "id": "hlm002",
+      "chapter": "第三回",
+      "question": "林黛玉是从哪里来到贾府的？",
+      "options": [
+        "金陵",
+        "苏州",
+        "北京",
+        "扬州"
+      ],
+      "answer": 3,
+      "explanation": "林黛玉的父亲林如海是巡盐御史，住在扬州，母亲去世后她从扬州来到贾府。",
+      "difficulty": "easy"
+    },
+    {
+      "id": "hlm003",
+      "chapter": "第三回",
+      "question": "贾宝玉为什么摔玉？",
+      "options": [
+        "因为玉摔碎了",
+        "因为林黛玉没有玉",
+        "因为玉不好看",
+        "因为他不喜欢玉"
+      ],
+      "answer": 1,
+      "explanation": "贾宝玉得知林黛玉没有玉，觉得自己的玉没用，生气地摔掉了通灵宝玉。",
+      "difficulty": "easy"
+    },
+    {
+      "id": "hlm004",
+      "chapter": "第四回",
+      "question": "薛宝钗的金锁上刻着什么字？",
+      "options": [
+        "不离不弃，芳龄永继",
+        "莫失莫忘，仙寿恒昌",
+        "吉祥如意，福寿安康",
+        "平安喜乐，岁岁平安"
+      ],
+      "answer": 0,
+      "explanation": "薛宝钗金锁上刻的是'不离不弃，芳龄永继'，与宝玉通灵宝玉上的'莫失莫忘，仙寿恒昌'相对应。",
+      "difficulty": "medium"
+    },
+    {
+      "id": "hlm005",
+      "chapter": "第十八回",
+      "question": "贾元春被封为贵妃后，回家省亲是在什么节日？",
+      "options": [
+        "春节",
+        "元宵节",
+        "中秋节",
+        "端午节"
+      ],
+      "answer": 1,
+      "explanation": "元妃省亲是在元宵节，这是贾府最盛的时刻。",
+      "difficulty": "medium"
+    },
+    {
+      "id": "hlm006",
+      "chapter": "第二十三回",
+      "question": "贾宝玉和林黛玉共读的是什么书？",
+      "options": [
+        "《牡丹亭》",
+        "《西厢记》",
+        "《琵琶记》",
+        "《长生殿》"
+      ],
+      "answer": 1,
+      "explanation": "贾宝玉和林黛玉在大观园共读《西厢记》，这是他们感情发展的重要情节。",
+      "difficulty": "easy"
+    },
+    {
+      "id": "hlm007",
+      "chapter": "第二十七回",
+      "question": "林黛玉葬花时所作的诗是什么？",
+      "options": [
+        "《桃花行》",
+        "《葬花吟》",
+        "《秋窗风雨夕》",
+        "《五美吟》"
+      ],
+      "answer": 1,
+      "explanation": "林黛玉在芒种节葬花时，作了著名的《葬花吟》，表达了她的身世之悲。",
+      "difficulty": "easy"
+    },
+    {
+      "id": "hlm008",
+      "chapter": "第三十一回",
+      "question": "晴雯撕扇是因为什么原因？",
+      "options": [
+        "宝玉让她撕的",
+        "她不小心摔了扇子",
+        "她想发脾气",
+        "扇子不好看"
+      ],
+      "answer": 1,
+      "explanation": "晴雯因失手摔了扇子，受到宝玉责备，宝玉为了哄她高兴，让她撕扇取乐。",
+      "difficulty": "medium"
+    },
+    {
+      "id": "hlm009",
+      "chapter": "第五十五回",
+      "question": "谁协助王熙凤治理家事，兴利除弊？",
+      "options": [
+        "李纨",
+        "贾探春",
+        "薛宝钗",
+        "平儿"
+      ],
+      "answer": 1,
+      "explanation": "贾探春在王熙凤生病期间，协助治理家事，提出了一系列改革措施。",
+      "difficulty": "easy"
+    },
+    {
+      "id": "hlm010",
+      "chapter": "第七十四回",
+      "question": "谁下令抄检大观园？",
+      "options": [
+        "贾母",
+        "贾政",
+        "王夫人",
+        "王熙凤"
+      ],
+      "answer": 2,
+      "explanation": "王夫人听信谗言，下令抄检大观园，导致晴雯等丫鬟被逐出。",
+      "difficulty": "easy"
+    },
+    {
+      "id": "hlm011",
+      "chapter": "第七十七回",
+      "question": "晴雯被逐出贾府后，最终的结局是什么？",
+      "options": [
+        "被卖为奴",
+        "含恨而死",
+        "出家为尼",
+        "远嫁他乡"
+      ],
+      "answer": 1,
+      "explanation": "晴雯被逐出贾府后，重病缠身，最终含恨而死。",
+      "difficulty": "easy"
+    },
+    {
+      "id": "hlm012",
+      "chapter": "第九十七回",
+      "question": "林黛玉在得知宝玉娶宝钗的消息后做了什么？",
+      "options": [
+        "祝福他们",
+        "焚稿断痴情",
+        "离家出走",
+        "生病卧床"
+      ],
+      "answer": 1,
+      "explanation": "林黛玉得知宝玉要娶宝钗后，烧掉了自己的诗稿和宝玉送的旧帕，断了痴情。",
+      "difficulty": "medium"
+    },
+    {
+      "id": "hlm013",
+      "chapter": "第九十八回",
+      "question": "林黛玉是在什么情况下病逝的？",
+      "options": [
+        "宝玉成婚之夜",
+        "春节期间",
+        "秋天",
+        "夏天"
+      ],
+      "answer": 0,
+      "explanation": "林黛玉在贾宝玉与薛宝钗成婚的同一夜晚，含恨病逝。",
+      "difficulty": "medium"
+    },
+    {
+      "id": "hlm014",
+      "chapter": "第一百二十回",
+      "question": "贾宝玉最终的结局是什么？",
+      "options": [
+        "考取功名",
+        "出家为僧",
+        "经商致富",
+        "病逝"
+      ],
+      "answer": 1,
+      "explanation": "贾宝玉在经历了家族衰败和黛玉之死后，看破红尘，出家为僧。",
+      "difficulty": "easy"
+    },
+    {
+      "id": "hlm015",
+      "chapter": "全书",
+      "question": "《红楼梦》中'金陵十二钗'指的是？",
+      "options": [
+        "十二个丫鬟",
+        "十二个女子",
+        "十二个男子",
+        "十二座楼阁"
+      ],
+      "answer": 1,
+      "explanation": "金陵十二钗是指《红楼梦》中十二位主要女性角色，包括林黛玉、薛宝钗等。",
+      "difficulty": "easy"
+    }
+  ]
+}

@@ -4,90 +4,123 @@
 
 ## 项目简介
 
-伴读精灵是一款面向大学生的名著辅助阅读工具，基于 RAG（检索增强生成）技术，让用户提问后获得有原著原文依据的回答，从根源解决大模型幻觉问题。
+伴读精灵是一款面向大学生的名著辅助阅读工具，基于 RAG（检索增强生成）技术，让用户提问后获得有原著原文依据的回答。系统涵盖**智能问答、人物关系、练习题**三大功能模块，为经典文学阅读提供全方位辅助。
 
-### 核心功能
+## 核心功能
 
-| 功能模块 | 描述 | 状态 |
-|----------|------|------|
-| 📁 文档上传 | 支持 TXT 格式名著文本上传 | ✅ |
-| 📚 向量入库 | 文本分块、向量化存储到 Chroma | ✅ |
-| 💬 溯源问答 | 基于原著片段回答，强制引用原文 | ✅ |
-| 📖 双栏展示 | AI 回答 + 原著依据对照展示 | ✅ |
-| 🚫 拒答机制 | 检索无结果时稳定拒答，零幻觉输出 | ✅ |
-| 🗄️ 向量库管理 | 新建/覆盖/追加/清空索引 | ✅ |
+### 🤖 智能问答
+
+- **文档上传**：支持 TXT 格式上传，自动识别编码（UTF-8/GBK/GB2312）
+- **向量检索**：按行分块 + 向量化存储，自动识别章节标题
+- **溯源回答**：基于原文片段生成回答，强制引用出处，标注章节
+- **双栏对照**：左侧 AI 回答，右侧原文依据 + 相似度
+- **智能拒答**：检索无关时明确拒答，避免幻觉；相关度低时提示用户
+- **多轮对话**：保留最近 3 轮上下文，支持追问
+
+### 👥 人物关系
+
+- **人物卡片**：展示人物身份、家族、简介，支持按家族筛选
+- **关系图谱**：Mermaid 可视化关系网络（取经团队 / 孙悟空关系网 / 天庭人物）
+- **核心事件**：列出重要情节及涉及人物
+
+### 📝 练习题
+
+- **做题模式**：选择题作答，即时提交批改
+- **结果统计**：正确率、错题分析、详细解析
+
+### � 多书籍管理
+
+- **书籍管理**：增删改查多本独立书籍知识库
+- **向量库隔离**：每本书独立向量库，互不影响
+- **统计信息**：显示文件数、分块数
 
 ## 技术栈
 
 | 层级 | 技术 | 说明 |
 |------|------|------|
-| 前端展示 | Streamlit | 快速构建交互页面 |
-| 后端逻辑 | Python 3.10+ | 业务实现与数据处理 |
-| RAG 编排 | LangChain | 文档加载、分块、检索 |
-| 向量库 | ChromaDB | 本地轻量向量存储 |
-| 向量模型 | BGE-M3 | 中文向量化 |
-| 大模型 | Qwen2 | 本地量化模型 |
+| 前端 | Streamlit | 交互界面 |
+| 图表 | Mermaid.js | 人物关系图 |
+| RAG | LangChain + ChromaDB | 文档检索与向量存储 |
+| 模型 | Qwen2.5 / GPT | 支持 Ollama 本地 / OpenAI API 双模式 |
+| 向量 | BGE-M3 | 中文向量化（Ollama 模式） |
 
 ## 安装教程
 
 ### 1. 安装依赖
 
 ```bash
-cd literary-ai-guide-master
-pip install -r requirements.txt
+pip install -r libs.txt
 ```
 
-### 2. 安装 Ollama
-
-请从 [Ollama 官网](https://ollama.com/) 下载并安装 Ollama。
-
-### 3. 下载模型
+### 2. 配置文件
 
 ```bash
-# 下载大模型（中文优化）
-ollama pull qwen2:7b
+copy config.py.template config.py
+```
 
-# 下载向量化模型
+### 3. 下载模型（Ollama 模式）
+
+```bash
+ollama pull qwen2.5:0.5b-instruct
 ollama pull bge-m3
 ```
+
+> 如需使用 OpenAI API，设置 `LLM_TYPE="openai"` 并配置 API Key。
 
 ## 使用说明
 
 ### 启动应用
 
 ```bash
-cd literary-ai-guide-master
 streamlit run app.py
 ```
 
-### 操作流程
+### 智能问答
 
-1. **上传名著文本**：在侧边栏选择 TXT 文件，选择入库模式（新建/覆盖/追加）
-2. **开始入库**：点击"开始入库"按钮，等待处理完成
-3. **智能问答**：在问答区输入问题，系统会检索原著并生成带原文依据的回答
-4. **查看结果**：左侧显示 AI 回答，右侧显示原著依据和章节出处
+1. 点击「书籍管理」创建/选择书籍
+2. 上传 TXT 文本文件
+3. 输入问题，获取带原文依据的回答
 
-### 入库模式说明
+### 人物关系
 
-| 模式 | 说明 |
-|------|------|
-| 新建索引 | 创建全新向量库 |
-| 覆盖现有索引 | 清空旧数据后写入新数据 |
-| 追加到现有索引 | 保留旧数据，添加新数据 |
+选择页面切换到「人物关系」，查看人物卡片、关系图、核心事件表。
+
+### 练习题
+
+选择页面切换到「练习题」，做题并提交，查看结果和错题分析。
+
+## 内置数据
+
+| 书籍 | 人物 | 练习题 |
+|------|------|--------|
+| 《西游记》 | ✅ 20+ 人物，含关系图谱 | ✅ 章回选择题库 |
+| 《红楼梦》 | ✅ 人物关系 | ✅ 练习题 |
+
+数据位于 `data/` 目录，可自行扩展。
 
 ## 项目结构
 
 ```
 literary-ai-guide-master/
-├── app.py              # Streamlit 主页面
-├── config.py           # 配置参数
-├── llm.py              # 大模型与 Embedding 加载
-├── rag.py              # RAG 检索逻辑
-├── agent.py            # 问答编排
-├── ollama_check.py     # Ollama 模型检查
-├── requirements.txt    # 依赖清单
-├── text_test/          # 测试文本目录
-└── README.md           # 项目说明
+├── app.py                  # 主页面
+├── book_manager.py         # 书籍管理
+├── character_service.py    # 人物关系服务
+├── exercise_service.py     # 练习题服务
+├── agent.py                # 问答编排
+├── rag.py                  # RAG 检索与向量存储
+├── llm.py                  # 大模型加载
+├── tools.py                # 工具函数
+├── utils.py                # 通用工具
+├── cli.py                  # 命令行工具
+├── config.py.template      # 配置模板
+├── libs.txt                # 核心依赖
+├── data/                   # 数据目录
+│   ├── books.json
+│   ├── characters_西游记.json
+│   ├── characters_红楼梦.json
+│   ├── exercises_西游记.json
+│   └── exercises_红楼梦.json
+└── tests/                  # 测试用例
 ```
 
 ## 配置说明
@@ -96,37 +129,31 @@ literary-ai-guide-master/
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| LLM_MODEL | qwen2:7b | 大模型名称 |
-| EMBED_MODEL | bge-m3 | 向量化模型 |
-| CHUNK_SIZE | 800 | 文本分块大小（字符） |
-| RETRIEVE_TOP_K | 10 | 召回段落数 |
-| SIMILARITY_THRESHOLD | 1.0 | 相似度阈值（距离值） |
-| PYTHON_EXE | C:\\Users\\Lenovo\\AppData\\Local\\Programs\\Python\\Python312\\python.exe | 本地 Python 解释器路径 |
+| LLM_TYPE | ollama | 大模型类型：ollama / openai |
+| EMBED_TYPE | ollama | Embedding 类型 |
+| OLLAMA_LLM_MODEL | qwen2.5:0.5b-instruct | Ollama 大模型 |
+| OLLAMA_EMBED_MODEL | bge-m3 | 向量化模型 |
+| CHUNK_LINES | 10 | 按行分块的行数 |
+| RETRIEVE_TOP_K | 3 | 召回段落数 |
+| SIMILARITY_THRESHOLD | 1.0 | 软拒绝阈值 |
+| SOFT_REJECTION_THRESHOLD | 2.0 | 硬拒绝阈值 |
+| MAX_CONVERSATION_TURNS | 3 | 对话轮数 |
 
-## 核心特性
+## CLI 工具
 
-### 🔍 溯源问答
-回答必须引用原著原文，标注章节出处，确保有据可查。
+```bash
+# 纯聊天
+python cli.py
 
-### 🚫 零幻觉输出
-当检索结果不足时，系统会明确拒答，绝不编造内容。
+# 带 RAG
+python cli.py path/to/book.txt
+```
 
-### 📱 轻量化部署
-单机本地运行，无需云端服务，适合课程设计演示。
+## 测试
 
-## 测试用例
-
-| 测试类型 | 输入 | 预期输出 |
-|----------|------|----------|
-| 正常提问 | "林黛玉进贾府" | 基于原著回答，标注章节出处 |
-| 无匹配 | "量子力学原理" | "未在原著中找到相关内容，无法作答" |
-
-## 参与贡献
-
-1. Fork 本仓库
-2. 新建 Feature 分支
-3. 提交代码
-4. 发起 Pull Request
+```bash
+pytest tests/
+```
 
 ## 许可证
 
@@ -134,7 +161,4 @@ MIT License
 
 ## 致谢
 
-- [Streamlit](https://streamlit.io/) - 快速构建数据应用
-- [LangChain](https://www.langchain.com/) - LLM 应用开发框架
-- [Chroma](https://www.trychroma.com/) - 轻量向量数据库
-- [Ollama](https://ollama.com/) - 本地大模型运行工具
+- [Streamlit](https://streamlit.io/) · [LangChain](https://www.langchain.com/) · [Chroma](https://www.trychroma.com/) · [Ollama](https://ollama.com/) · [Mermaid](https://mermaid.js.org/)

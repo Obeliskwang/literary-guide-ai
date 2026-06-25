@@ -2,6 +2,8 @@
 import logging
 import time
 import streamlit as st
+import json
+import os
 
 from config import setup_logging
 from ollama_check import OllamaModelsError, ensure_ollama_models
@@ -31,6 +33,34 @@ from book_manager import (
     render_bookshelf_sidebar,
     render_book_manager_dialog,
 )
+
+
+# 定义本地历史记录缓存文件名
+HISTORY_FILE = "chat_history_cache.json"
+
+
+def load_all_history():
+    """从本地 JSON 文件读取所有书籍的历史记录"""
+    if os.path.exists(HISTORY_FILE):
+        try:
+            with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            logger.error("读取历史文件失败: %s", e)
+    return {}
+
+
+def save_book_history(book_title, history):
+    """将当前书籍的历史记录保存到本地 JSON 文件中"""
+    try:
+        all_history = load_all_history()
+        # 以书名为 Key 隔离存储，如果没有书名则用 default
+        all_history[book_title or "default"] = history
+        with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+            json.dump(all_history, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logger.error("保存历史文件失败: %s", e)
+
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -74,7 +104,21 @@ if page == "智能问答":
     with st.sidebar:
         render_bookshelf_sidebar()
 
+        st.markdown("---")
+        if st.button("清空当前书本历史", use_container_width=True):
+            # 🔄 修正点 1：确保 None 也会转为 "default"
+            current_book = st.session_state.get("current_book") or "default"
+            save_book_history(current_book, [])
+            st.session_state.chat_history = []
+            st.toast("历史记录已清空")
+            st.rerun()
+
     st.header("智能问答")
+
+    # 🔄 修正点 2：确保 None 也会转为 "default"
+    current_book = st.session_state.get("current_book") or "default"
+    all_history = load_all_history()
+    st.session_state.chat_history = all_history.get(current_book, [])
 
     if st.session_state.current_book:
         st.subheader(f"当前阅读：《{st.session_state.current_book}》")
@@ -116,6 +160,9 @@ if page == "智能问答":
                     "min_distance": result.get("min_distance", 0),
                 }
             )
+
+            # 【核心改动 2】生成新回答后，立即将更新后的历史写回本地 JSON 文件
+            save_book_history(current_book, st.session_state.chat_history)
 
     for i, chat in enumerate(st.session_state.chat_history):
         st.write("---")

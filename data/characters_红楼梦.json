@@ -1,0 +1,400 @@
+{
+  "book": "红楼梦",
+  "characters": [
+    {
+      "id": "jia_baoyu",
+      "name": "贾宝玉",
+      "identity": "荣国府公子",
+      "description": "贾政次子，生而衔玉，聪明灵秀，厌恶功名富贵，钟情于林黛玉",
+      "family": "贾府",
+      "role": "主要角色"
+    },
+    {
+      "id": "lin_daiyu",
+      "name": "林黛玉",
+      "identity": "林如海之女",
+      "description": "寄居贾府的表小姐，体弱多病，才华横溢，与贾宝玉青梅竹马",
+      "family": "林府",
+      "role": "主要角色"
+    },
+    {
+      "id": "xue_baochai",
+      "name": "薛宝钗",
+      "identity": "薛姨妈之女",
+      "description": "薛家千金，端庄贤淑，博学多才，最终与贾宝玉成婚",
+      "family": "薛府",
+      "role": "主要角色"
+    },
+    {
+      "id": "jia_yuanchun",
+      "name": "贾元春",
+      "identity": "贾政长女、贤德妃",
+      "description": "贾宝玉的姐姐，入宫为妃，地位显赫",
+      "family": "贾府",
+      "role": "主要角色"
+    },
+    {
+      "id": "jia_tanchun",
+      "name": "贾探春",
+      "identity": "贾政庶女",
+      "description": "贾府三小姐，精明能干，有治理才能",
+      "family": "贾府",
+      "role": "主要角色"
+    },
+    {
+      "id": "shi_xiangyun",
+      "name": "史湘云",
+      "identity": "史侯爷孙女",
+      "description": "贾母娘家侄孙女，性格豪爽开朗，才华出众",
+      "family": "史府",
+      "role": "重要角色"
+    },
+    {
+      "id": "jia_yingchun",
+      "name": "贾迎春",
+      "identity": "贾赦庶女",
+      "description": "贾府二小姐，性格懦弱，后嫁给孙绍祖",
+      "family": "贾府",
+      "role": "重要角色"
+    },
+    {
+      "id": "jia_xichun",
+      "name": "贾惜春",
+      "identity": "贾珍之妹",
+      "description": "贾府四小姐，性格孤僻，后出家为尼",
+      "family": "贾府",
+      "role": "重要角色"
+    },
+    {
+      "id": "wang_xifeng",
+      "name": "王熙凤",
+      "identity": "贾琏之妻",
+      "description": "贾府实际管家，精明强干但心狠手辣",
+      "family": "贾府",
+      "role": "重要角色"
+    },
+    {
+      "id": "jia_zhen",
+      "name": "贾珍",
+      "identity": "宁国府当家人",
+      "description": "贾敬之子，荒淫无道",
+      "family": "贾府",
+      "role": "重要角色"
+    },
+    {
+      "id": "jia_zheng",
+      "name": "贾政",
+      "identity": "荣国府二老爷",
+      "description": "贾宝玉之父，为人正直但迂腐",
+      "family": "贾府",
+      "role": "重要角色"
+    },
+    {
+      "id": "jia_she",
+      "name": "贾赦",
+      "identity": "荣国府大老爷",
+      "description": "贾政之兄，贪财好色",
+      "family": "贾府",
+      "role": "重要角色"
+    },
+    {
+      "id": "jia_mu",
+      "name": "贾母",
+      "identity": "贾府老太君",
+      "description": "贾府最高统治者，慈祥但偏心",
+      "family": "贾府",
+      "role": "重要角色"
+    },
+    {
+      "id": "wang_furen",
+      "name": "王夫人",
+      "identity": "贾政之妻",
+      "description": "贾宝玉之母，表面慈善实际城府深",
+      "family": "贾府",
+      "role": "重要角色"
+    },
+    {
+      "id": "xue_yima",
+      "name": "薛姨妈",
+      "identity": "薛宝钗之母",
+      "description": "王夫人的妹妹，寄居贾府",
+      "family": "薛府",
+      "role": "重要角色"
+    },
+    {
+      "id": "jia_lian",
+      "name": "贾琏",
+      "identity": "贾赦长子",
+      "description": "王熙凤之夫，风流成性",
+      "family": "贾府",
+      "role": "重要角色"
+    },
+    {
+      "id": "qin_keqing",
+      "name": "秦可卿",
+      "identity": "贾蓉之妻",
+      "description": "宁国府重孙媳妇，美貌绝伦，后病逝",
+      "family": "贾府",
+      "role": "重要角色"
+    },
+    {
+      "id": "jia_rong",
+      "name": "贾蓉",
+      "identity": "贾珍之子",
+      "description": "贾府重孙，轻薄放荡",
+      "family": "贾府",
+      "role": "重要角色"
+    },
+    {
+      "id": "ping'er",
+      "name": "平儿",
+      "identity": "王熙凤丫鬟",
+      "description": "王熙凤的得力助手，善良聪慧",
+      "family": "贾府",
+      "role": "重要角色"
+    },
+    {
+      "id": "xiren",
+      "name": "袭人",
+      "identity": "贾宝玉丫鬟",
+      "description": "贾宝玉的贴身丫鬟，温柔体贴",
+      "family": "贾府",
+      "role": "重要角色"
+    },
+    {
+      "id": "qingwen",
+      "name": "晴雯",
+      "identity": "贾宝玉丫鬟",
+      "description": "心比天高，貌美如花，后被逐出贾府",
+      "family": "贾府",
+      "role": "重要角色"
+    },
+    {
+      "id": "miaoyu",
+      "name": "妙玉",
+      "identity": "栊翠庵带发修行",
+      "description": "出身仕宦之家，因病入空门，孤傲清高",
+      "family": "栊翠庵",
+      "role": "重要角色"
+    },
+    {
+      "id": "li_wan",
+      "name": "李纨",
+      "identity": "贾珠遗孀",
+      "description": "贾宝玉长嫂，守寡抚孤，品行端正",
+      "family": "贾府",
+      "role": "重要角色"
+    },
+    {
+      "id": "jia_zhu",
+      "name": "贾珠",
+      "identity": "贾政长子",
+      "description": "李纨之夫，早逝",
+      "family": "贾府",
+      "role": "重要角色"
+    },
+    {
+      "id": "xing_furen",
+      "name": "邢夫人",
+      "identity": "贾赦之妻",
+      "description": "为人势利，与王熙凤不和",
+      "family": "贾府",
+      "role": "重要角色"
+    }
+  ],
+  "relations": [
+    {"from": "jia_baoyu", "to": "lin_daiyu", "relation": "表兄妹", "type": "family"},
+    {"from": "jia_baoyu", "to": "xue_baochai", "relation": "表兄妹", "type": "family"},
+    {"from": "jia_baoyu", "to": "jia_zheng", "relation": "父子", "type": "family"},
+    {"from": "jia_baoyu", "to": "wang_furen", "relation": "母子", "type": "family"},
+    {"from": "jia_baoyu", "to": "jia_mu", "relation": "祖孙", "type": "family"},
+    {"from": "jia_baoyu", "to": "jia_yuanchun", "relation": "姐弟", "type": "family"},
+    {"from": "jia_baoyu", "to": "jia_tanchun", "relation": "兄妹", "type": "family"},
+    {"from": "lin_daiyu", "to": "jia_mu", "relation": "祖孙", "type": "family"},
+    {"from": "lin_daiyu", "to": "jia_zheng", "relation": "姑侄", "type": "family"},
+    {"from": "xue_baochai", "to": "xue_yima", "relation": "母女", "type": "family"},
+    {"from": "xue_baochai", "to": "wang_furen", "relation": "姨甥女", "type": "family"},
+    {"from": "jia_zheng", "to": "jia_she", "relation": "兄弟", "type": "family"},
+    {"from": "jia_zheng", "to": "jia_mu", "relation": "母子", "type": "family"},
+    {"from": "jia_zheng", "to": "wang_furen", "relation": "夫妻", "type": "family"},
+    {"from": "jia_mu", "to": "shi_xiangyun", "relation": "姑祖母", "type": "family"},
+    {"from": "jia_she", "to": "xing_furen", "relation": "夫妻", "type": "family"},
+    {"from": "jia_she", "to": "jia_yingchun", "relation": "父女", "type": "family"},
+    {"from": "jia_lian", "to": "wang_xifeng", "relation": "夫妻", "type": "family"},
+    {"from": "jia_lian", "to": "jia_she", "relation": "父子", "type": "family"},
+    {"from": "jia_zhen", "to": "jia_rong", "relation": "父子", "type": "family"},
+    {"from": "jia_rong", "to": "qin_keqing", "relation": "夫妻", "type": "family"},
+    {"from": "jia_baoyu", "to": "jia_yingchun", "relation": "兄妹", "type": "family"},
+    {"from": "jia_baoyu", "to": "jia_xichun", "relation": "兄妹", "type": "family"},
+    {"from": "jia_baoyu", "to": "shi_xiangyun", "relation": "表兄妹", "type": "family"},
+    {"from": "jia_tanchun", "to": "wang_xifeng", "relation": "姑嫂", "type": "family"},
+    {"from": "jia_baoyu", "to": "qingwen", "relation": "主仆", "type": "family"},
+    {"from": "jia_baoyu", "to": "xiren", "relation": "主仆", "type": "family"},
+    {"from": "wang_xifeng", "to": "ping'er", "relation": "主仆", "type": "family"}
+  ],
+  "events": [
+    {
+      "id": "event_1",
+      "name": "林黛玉进贾府",
+      "chapter": "第3回",
+      "description": "林黛玉母亲去世后，从苏州来到贾府寄居",
+      "characters": ["lin_daiyu", "jia_mu", "jia_baoyu"]
+    },
+    {
+      "id": "event_2",
+      "name": "宝玉摔玉",
+      "chapter": "第3回",
+      "description": "贾宝玉得知林黛玉没有玉，生气地摔掉自己的通灵宝玉",
+      "characters": ["jia_baoyu", "lin_daiyu"]
+    },
+    {
+      "id": "event_3",
+      "name": "宝钗进京",
+      "chapter": "第4回",
+      "description": "薛宝钗随母亲进京，寄居贾府",
+      "characters": ["xue_baochai", "xue_yima"]
+    },
+    {
+      "id": "event_4",
+      "name": "元妃省亲",
+      "chapter": "第18回",
+      "description": "贾元春被封为贵妃后，回家省亲",
+      "characters": ["jia_yuanchun", "jia_mu", "jia_baoyu"]
+    },
+    {
+      "id": "event_5",
+      "name": "大观园题咏",
+      "chapter": "第17-18回",
+      "description": "众人在大观园各处题咏作诗",
+      "characters": ["jia_baoyu", "lin_daiyu", "xue_baochai", "jia_tanchun"]
+    },
+    {
+      "id": "event_6",
+      "name": "共读西厢",
+      "chapter": "第23回",
+      "description": "贾宝玉和林黛玉在大观园共读《西厢记》",
+      "characters": ["jia_baoyu", "lin_daiyu"]
+    },
+    {
+      "id": "event_7",
+      "name": "葬花吟",
+      "chapter": "第27回",
+      "description": "林黛玉葬花并作《葬花吟》",
+      "characters": ["lin_daiyu"]
+    },
+    {
+      "id": "event_8",
+      "name": "晴雯撕扇",
+      "chapter": "第31回",
+      "description": "晴雯因失手摔了扇子，贾宝玉让她撕扇取乐",
+      "characters": ["qingwen", "jia_baoyu"]
+    },
+    {
+      "id": "event_9",
+      "name": "探春理家",
+      "chapter": "第55-56回",
+      "description": "贾探春协助王熙凤治理家事，兴利除弊",
+      "characters": ["jia_tanchun", "li_wan", "ping'er"]
+    },
+    {
+      "id": "event_10",
+      "name": "抄检大观园",
+      "chapter": "第74回",
+      "description": "王夫人命人抄检大观园，晴雯等人被逐出",
+      "characters": ["wang_furen", "qingwen", "xiren"]
+    },
+    {
+      "id": "event_11",
+      "name": "晴雯之死",
+      "chapter": "第77回",
+      "description": "晴雯被逐出贾府后，含恨而死",
+      "characters": ["qingwen", "jia_baoyu"]
+    },
+    {
+      "id": "event_12",
+      "name": "黛玉焚稿",
+      "chapter": "第97回",
+      "description": "林黛玉得知宝玉娶宝钗的消息后，焚稿断痴情",
+      "characters": ["lin_daiyu"]
+    },
+    {
+      "id": "event_13",
+      "name": "金玉良缘",
+      "chapter": "第97回",
+      "description": "贾宝玉与薛宝钗成婚",
+      "characters": ["jia_baoyu", "xue_baochai"]
+    },
+    {
+      "id": "event_14",
+      "name": "黛玉病逝",
+      "chapter": "第98回",
+      "description": "林黛玉在宝玉成婚之夜病逝",
+      "characters": ["lin_daiyu"]
+    },
+    {
+      "id": "event_15",
+      "name": "宝玉出家",
+      "chapter": "第120回",
+      "description": "贾宝玉看破红尘，出家为僧",
+      "characters": ["jia_baoyu"]
+    }
+  ],
+  "character_events": [
+    {
+      "character_id": "jia_baoyu",
+      "events": ["event_1", "event_2", "event_3", "event_4", "event_5", "event_6", "event_8", "event_11", "event_13", "event_15"]
+    },
+    {
+      "character_id": "lin_daiyu",
+      "events": ["event_1", "event_2", "event_5", "event_6", "event_7", "event_12", "event_14"]
+    },
+    {
+      "character_id": "xue_baochai",
+      "events": ["event_3", "event_5", "event_13"]
+    },
+    {
+      "character_id": "jia_mu",
+      "events": ["event_1", "event_4"]
+    },
+    {
+      "character_id": "jia_yuanchun",
+      "events": ["event_4"]
+    },
+    {
+      "character_id": "jia_tanchun",
+      "events": ["event_5", "event_9"]
+    },
+    {
+      "character_id": "qingwen",
+      "events": ["event_8", "event_10", "event_11"]
+    },
+    {
+      "character_id": "wang_xifeng",
+      "events": ["event_9", "event_10"]
+    },
+    {
+      "character_id": "xue_yima",
+      "events": ["event_3"]
+    },
+    {
+      "character_id": "jia_zheng",
+      "events": ["event_4"]
+    },
+    {
+      "character_id": "wang_furen",
+      "events": ["event_10"]
+    },
+    {
+      "character_id": "ping'er",
+      "events": ["event_9"]
+    },
+    {
+      "character_id": "li_wan",
+      "events": ["event_9"]
+    },
+    {
+      "character_id": "xiren",
+      "events": ["event_10"]
+    }
+  ]
+}
