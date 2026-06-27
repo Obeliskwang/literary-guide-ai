@@ -9,6 +9,8 @@ from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+from reranker import rerank_chunks
+
 from config import (
     CHUNK_LINE_OVERLAP,
     CHUNK_LINES,
@@ -22,6 +24,9 @@ from config import (
     SIMILARITY_THRESHOLD,
     SOFT_REJECTION_MESSAGE,
     SOFT_REJECTION_THRESHOLD,
+    USE_RERANKER,
+    RERANKER_RECALL_K,
+    RERANKER_TOP_N,
 )
 from llm import get_embeddings
 
@@ -29,15 +34,18 @@ logger = logging.getLogger(__name__)
 
 PERSIST_ROOT = Path("chroma_db")
 
+
 def get_book_persist_dir(book_id):
     """获取书籍的向量库持久化目录"""
     return PERSIST_ROOT / f"book_{book_id}"
+
 
 def _reset_persisted_store(book_id):
     """重置指定书籍的向量库"""
     persist_dir = get_book_persist_dir(book_id)
     if persist_dir.exists():
         shutil.rmtree(persist_dir)
+
 
 def clean_text(text):
     """基础文本清洗：统一换行、压缩空白、过滤广告行。适配RAG分块，抹平所有段落换行"""
@@ -76,6 +84,7 @@ def clean_text(text):
     logger.info("clean_text: cleaned from %d chars to %d chars", len(text), len(result))
     return result
 
+
 def extract_chapter_metadata(text):
     lines = text.split("\n")
     chapters = []
@@ -107,6 +116,7 @@ def extract_chapter_metadata(text):
 
     logger.info("extract_chapter_metadata: found %s chapters", len(chapters))
     return chapters
+
 
 def split_text_by_lines(
     text, lines_per_chunk=CHUNK_LINES, overlap_lines=CHUNK_LINE_OVERLAP
@@ -185,13 +195,20 @@ def split_text_by_lines(
     )
     return docs
 
+
 def create_vector_store(text, book_id, file_id, file_name, mode="append"):
     """为指定书籍和文件创建/追加向量"""
     embeddings = get_embeddings()
     persist_dir = get_book_persist_dir(book_id)
-    
-    logger.info("create_vector_store: book_id=%s, file_id=%s, file_name=%s, input_chars=%s, mode=%s", 
-                book_id, file_id, file_name, len(text), mode)
+
+    logger.info(
+        "create_vector_store: book_id=%s, file_id=%s, file_name=%s, input_chars=%s, mode=%s",
+        book_id,
+        file_id,
+        file_name,
+        len(text),
+        mode,
+    )
 
     text = clean_text(text)
     docs = split_text_by_lines(text)
@@ -230,7 +247,10 @@ def create_vector_store(text, book_id, file_id, file_name, mode="append"):
                         persist_directory=str(persist_dir),
                         collection_metadata={"hnsw:space": "cosine"},
                     )
-                    logger.info("create_vector_store: initial Chroma index created for book %s", book_id)
+                    logger.info(
+                        "create_vector_store: initial Chroma index created for book %s",
+                        book_id,
+                    )
                 else:
                     vectordb.add_documents(batch_docs)
                     logger.info("create_vector_store: batch %s added", batch_idx + 1)
@@ -248,15 +268,20 @@ def create_vector_store(text, book_id, file_id, file_name, mode="append"):
                         f"建议：减少 EMBED_BATCH_SIZE 或增加 EMBED_TIMEOUT"
                     ) from e
 
-    logger.info("create_vector_store: Chroma index ready with %s chunks for book %s", len(docs), book_id)
+    logger.info(
+        "create_vector_store: Chroma index ready with %s chunks for book %s",
+        len(docs),
+        book_id,
+    )
     return vectordb, len(docs)
+
 
 def get_vector_store_by_book(book_id):
     """获取指定书籍的向量库"""
     persist_dir = get_book_persist_dir(book_id)
     if not persist_dir.exists():
         return None
-    
+
     embeddings = get_embeddings()
     vectordb = Chroma(
         persist_directory=str(persist_dir),
@@ -265,30 +290,37 @@ def get_vector_store_by_book(book_id):
     )
     return vectordb
 
+
 def delete_file_chunks(book_id, file_id):
     """删除指定文件的所有分块向量"""
     vectordb = get_vector_store_by_book(book_id)
     if vectordb is None:
         return 0
-    
+
     collection = vectordb._client.get_collection(vectordb._collection.name)
     all_data = collection.get()
-    
+
     file_ids_to_delete = []
     for idx, metadata in enumerate(all_data["metadatas"]):
         if metadata.get("file_id") == file_id:
             file_ids_to_delete.append(all_data["ids"][idx])
-    
+
     if file_ids_to_delete:
         collection.delete(ids=file_ids_to_delete)
-        logger.info("delete_file_chunks: deleted %s chunks for file %s", len(file_ids_to_delete), file_id)
-    
+        logger.info(
+            "delete_file_chunks: deleted %s chunks for file %s",
+            len(file_ids_to_delete),
+            file_id,
+        )
+
     return len(file_ids_to_delete)
+
 
 def delete_book_vector_store(book_id):
     """删除书籍的整个向量库"""
     _reset_persisted_store(book_id)
     logger.info("delete_book_vector_store: deleted vector store for book %s", book_id)
+
 
 def clear_vector_store(vectordb):
     if vectordb is not None:
@@ -297,6 +329,7 @@ def clear_vector_store(vectordb):
         collection.delete(ids=collection.get()["ids"])
         logger.info("clear_vector_store: deleted %s documents", count)
 
+
 def get_vector_store_stats(vectordb):
     if vectordb is None:
         return {"document_count": 0}
@@ -304,19 +337,25 @@ def get_vector_store_stats(vectordb):
     collection = vectordb._client.get_collection(vectordb._collection.name)
     return {"document_count": collection.count()}
 
+
 def get_vector_store_stats_for_book(book_id):
     """获取指定书籍的向量库统计信息"""
     vectordb = get_vector_store_by_book(book_id)
     if vectordb is None:
         return {"document_count": 0}
-    
+
     collection = vectordb._client.get_collection(vectordb._collection.name)
     return {"document_count": collection.count()}
 
+
 def retrieve(vectordb, query):
     logger.info("retrieve: query=%s", query)
-    out = vectordb.similarity_search_with_score(query, k=RETRIEVE_TOP_K)
-    logger.info("retrieve: hits=%s", len(out))
+
+    recall_k = RERANKER_RECALL_K if USE_RERANKER else RETRIEVE_TOP_K
+    out = vectordb.similarity_search_with_score(query, k=recall_k)
+    logger.info(
+        "retrieve: hits=%s (recall_k=%d, reranker=%s)", len(out), recall_k, USE_RERANKER
+    )
 
     results_with_score = []
     min_distance = float("inf")
@@ -353,6 +392,18 @@ def retrieve(vectordb, query):
         r for r in results_with_score if r["distance"] <= SOFT_REJECTION_THRESHOLD
     ]
     logger.info("retrieve: filtered to %s relevant results", len(filtered_results))
+
+    if USE_RERANKER and filtered_results:
+
+        reranked = rerank_chunks(query, filtered_results, top_n=RERANKER_TOP_N)
+        if reranked and "rerank_score" in reranked[0]:
+            logger.info(
+                "retrieve: reranker applied, %d -> %d chunks, top_score=%.4f",
+                len(filtered_results),
+                len(reranked),
+                reranked[0]["rerank_score"],
+            )
+            filtered_results = reranked
 
     if min_distance > SIMILARITY_THRESHOLD:
         logger.info(

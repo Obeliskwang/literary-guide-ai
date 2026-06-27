@@ -1,4 +1,5 @@
 import logging
+import re
 import traceback
 from rag import retrieve
 import requests
@@ -35,6 +36,12 @@ def check_model_health():
         except Exception as e:
             logger.warning("Ollama health check failed: %s", e)
             return False
+
+
+def _strip_think_tags(text: str) -> str:
+    if not text:
+        return text
+    return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
 
 
 def _truncate_text(text: str, limit: int) -> str:
@@ -300,6 +307,8 @@ def generate_answer(vectordb, query, retrieved_results=None, conversation_histor
 
         if not answer:
             raise RuntimeError(f"API returned empty message")
+
+        answer = _strip_think_tags(answer)
 
         logger.info("generate_answer: model responded successfully")
 

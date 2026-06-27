@@ -208,20 +208,23 @@ if page == "智能问答":
                 st.write(f"相似度：{(1 - chat.get('min_distance', 0)) * 100:.1f}%")
 
         with col2:
-            st.subheader("原文依据")
-            if chat["sources"]:
-                for j, source in enumerate(chat["sources"]):
-                    if j < 3:
-                        chapter = source.get("metadata", {}).get("chapter", "未知章节")
-                        file_name = source.get("metadata", {}).get(
-                            "file_name", "未知文件"
-                        )
-                        st.write(f"片段{j+1}：{file_name} - {chapter}")
-                        st.write(
-                            f"> {source['text'][:300]}{'...' if len(source['text']) > 300 else ''}"
-                        )
+            if chat["rejected"]:
+                st.info("无匹配原文")
             else:
-                st.write("无匹配原文")
+                st.subheader("原文依据")
+                if chat["sources"]:
+                    for j, source in enumerate(chat["sources"]):
+                        if j < 3:
+                            chapter = source.get("metadata", {}).get("chapter", "未知章节")
+                            file_name = source.get("metadata", {}).get(
+                                "file_name", "未知文件"
+                            )
+                            st.write(f"片段{j+1}：{file_name} - {chapter}")
+                            st.write(
+                                f"> {source['text'][:300]}{'...' if len(source['text']) > 300 else ''}"
+                            )
+                else:
+                    st.write("无匹配原文")
 
     with st.expander("检索阈值说明"):
         st.write(

@@ -233,10 +233,7 @@ def _render_book_manager_content():
                             key=f"edit_input_{book['id']}",
                         )
                     else:
-                        st.markdown(
-                            f"**{book['name']}**  \n<small>ID: {book['id']}</small>",
-                            unsafe_allow_html=True,
-                        )
+                        st.markdown(f"**{book['name']}**")
 
                 with col_count:
                     st.caption(f"[{len(book.get('files', []))}个文档]")

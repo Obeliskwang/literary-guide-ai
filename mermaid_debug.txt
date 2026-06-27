@@ -1,9 +1,0 @@
-=== Generated Mermaid Code ===
-'graph TD\nN0[孙悟空<br/>齐天大圣、斗战胜佛]\nN1[玉皇大帝<br/>三界主宰]\nN2[托塔李天王<br/>天庭元帅]\nN0 -->|敌对| N1\nN1 -->|君臣| N2\n'
-=== Actual Code ===
-graph TD
-N0[孙悟空<br/>齐天大圣、斗战胜佛]
-N1[玉皇大帝<br/>三界主宰]
-N2[托塔李天王<br/>天庭元帅]
-N0 -->|敌对| N1
-N1 -->|君臣| N2
