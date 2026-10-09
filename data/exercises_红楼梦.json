@@ -14,7 +14,8 @@
       ],
       "answer": 2,
       "explanation": "《红楼梦》是清代作家曹雪芹创作的章回体长篇小说。",
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "source": "《红楼梦》第一回"
     },
     {
       "id": "hlm002",
@@ -28,7 +29,8 @@
       ],
       "answer": 3,
       "explanation": "林黛玉的父亲林如海是巡盐御史，住在扬州，母亲去世后她从扬州来到贾府。",
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "source": "《红楼梦》第二回、第三回"
     },
     {
       "id": "hlm003",
@@ -42,11 +44,12 @@
       ],
       "answer": 1,
       "explanation": "贾宝玉得知林黛玉没有玉，觉得自己的玉没用，生气地摔掉了通灵宝玉。",
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "source": "《红楼梦》第三回"
     },
     {
       "id": "hlm004",
-      "chapter": "第四回",
+      "chapter": "第八回",
       "question": "薛宝钗的金锁上刻着什么字？",
       "options": [
         "不离不弃，芳龄永继",
@@ -56,7 +59,8 @@
       ],
       "answer": 0,
       "explanation": "薛宝钗金锁上刻的是'不离不弃，芳龄永继'，与宝玉通灵宝玉上的'莫失莫忘，仙寿恒昌'相对应。",
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "source": "《红楼梦》第八回"
     },
     {
       "id": "hlm005",
@@ -70,7 +74,8 @@
       ],
       "answer": 1,
       "explanation": "元妃省亲是在元宵节，这是贾府最盛的时刻。",
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "source": "《红楼梦》第十八回"
     },
     {
       "id": "hlm006",
@@ -84,7 +89,8 @@
       ],
       "answer": 1,
       "explanation": "贾宝玉和林黛玉在大观园共读《西厢记》，这是他们感情发展的重要情节。",
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "source": "《红楼梦》第二十三回"
     },
     {
       "id": "hlm007",
@@ -98,7 +104,8 @@
       ],
       "answer": 1,
       "explanation": "林黛玉在芒种节葬花时，作了著名的《葬花吟》，表达了她的身世之悲。",
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "source": "《红楼梦》第二十七回"
     },
     {
       "id": "hlm008",
@@ -112,7 +119,8 @@
       ],
       "answer": 1,
       "explanation": "晴雯因失手摔了扇子，受到宝玉责备，宝玉为了哄她高兴，让她撕扇取乐。",
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "source": "《红楼梦》第三十一回"
     },
     {
       "id": "hlm009",
@@ -126,7 +134,8 @@
       ],
       "answer": 1,
       "explanation": "贾探春在王熙凤生病期间，协助治理家事，提出了一系列改革措施。",
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "source": "《红楼梦》第五十五回、第五十六回"
     },
     {
       "id": "hlm010",
@@ -140,7 +149,8 @@
       ],
       "answer": 2,
       "explanation": "王夫人听信谗言，下令抄检大观园，导致晴雯等丫鬟被逐出。",
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "source": "《红楼梦》第七十四回"
     },
     {
       "id": "hlm011",
@@ -154,7 +164,8 @@
       ],
       "answer": 1,
       "explanation": "晴雯被逐出贾府后，重病缠身，最终含恨而死。",
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "source": "《红楼梦》第七十七回"
     },
     {
       "id": "hlm012",
@@ -168,7 +179,8 @@
       ],
       "answer": 1,
       "explanation": "林黛玉得知宝玉要娶宝钗后，烧掉了自己的诗稿和宝玉送的旧帕，断了痴情。",
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "source": "《红楼梦》第九十七回"
     },
     {
       "id": "hlm013",
@@ -182,7 +194,8 @@
       ],
       "answer": 0,
       "explanation": "林黛玉在贾宝玉与薛宝钗成婚的同一夜晚，含恨病逝。",
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "source": "《红楼梦》第九十八回"
     },
     {
       "id": "hlm014",
@@ -196,11 +209,12 @@
       ],
       "answer": 1,
       "explanation": "贾宝玉在经历了家族衰败和黛玉之死后，看破红尘，出家为僧。",
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "source": "《红楼梦》第一百十九回、第一百二十回"
     },
     {
       "id": "hlm015",
-      "chapter": "全书",
+      "chapter": "第五回",
       "question": "《红楼梦》中'金陵十二钗'指的是？",
       "options": [
         "十二个丫鬟",
@@ -210,7 +224,8 @@
       ],
       "answer": 1,
       "explanation": "金陵十二钗是指《红楼梦》中十二位主要女性角色，包括林黛玉、薛宝钗等。",
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "source": "《红楼梦》第五回"
     }
   ]
 }

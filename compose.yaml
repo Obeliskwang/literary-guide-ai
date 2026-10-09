@@ -1,0 +1,62 @@
+services:
+  api:
+    build:
+      context: .
+    command:
+      - python
+      - -m
+      - uvicorn
+      - api:create_app
+      - --factory
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+    ports:
+      - "8000:8000"
+    environment:
+      LITERARY_DATA_DIR: /app/data
+      OLLAMA_HOST: http://host.docker.internal:11434
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+    volumes:
+      - literary-data:/app/data
+      - literary-chroma:/app/chroma_db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/live')"
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+
+  ui:
+    build:
+      context: .
+    command:
+      - python
+      - -m
+      - streamlit
+      - run
+      - app.py
+      - --server.address=0.0.0.0
+      - --server.port=8501
+      - --server.headless=true
+      - --browser.gatherUsageStats=false
+    ports:
+      - "8501:8501"
+    environment:
+      LITERARY_API_URL: http://api:8000
+      LITERARY_PUBLIC_API_URL: http://localhost:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  literary-data:
+  literary-chroma:

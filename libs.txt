@@ -2,5 +2,10 @@ streamlit
 langchain
 langchain_community
 langchain-ollama
+langchain-openai
 langchain-text-splitters
 python-dotenv
+python-docx
+pdfplumber
+PyPDF2
+bcrypt>=4,<6

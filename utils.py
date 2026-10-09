@@ -89,6 +89,14 @@ def get_book_by_id(book_id):
 def delete_book(book_id):
     """删除书籍"""
     books = load_books_metadata()
+    from session_store import SessionStore
+
+    book = next((b for b in books if b["id"] == book_id), None)
+    # Legacy title keys cannot distinguish books with identical names.
+    unique_name = book["name"] if book and sum(b["name"] == book["name"] for b in books) == 1 else None
+    SessionStore().delete_book(
+        book_id, DATA_DIR.parent / "chat_history_cache.json", unique_name
+    )
     books = [b for b in books if b["id"] != book_id]
     save_books_metadata(books)
 

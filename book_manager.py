@@ -11,6 +11,7 @@
 
 import hashlib
 import logging
+import sqlite3
 
 import streamlit as st
 
@@ -32,6 +33,7 @@ from rag import (
     delete_book_vector_store,
     get_vector_store_stats_for_book,
 )
+from document_parser import parse_document
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +41,16 @@ logger = logging.getLogger(__name__)
 def _safe_rerun():
     """安全的 rerun 封装"""
     st.rerun()
+
+
+def _delete_book_with_history(book_id):
+    try:
+        delete_book(book_id)
+        delete_book_vector_store(book_id)
+    except (OSError, ValueError, sqlite3.Error):
+        logger.exception("Book deletion failed: book_id=%s", book_id)
+        st.error("删除未完成，请检查存储后重试。")
+        st.stop()
 
 
 def init_book_session_state():
@@ -278,7 +290,7 @@ def _render_book_manager_content():
                         _safe_rerun()
 
                 if st.session_state.delete_confirm_id == book["id"]:
-                    st.warning(f"确定要删除《{book['name']}》吗？此操作不可恢复！")
+                    st.warning(f"确定要删除《{book['name']}》吗？关联会话及全部历史记录将一起删除，不会留存。此操作不可恢复！")
                     col_confirm, col_cancel_del = st.columns(2)
                     with col_confirm:
                         if st.button(
@@ -292,12 +304,12 @@ def _render_book_manager_content():
                             )
                             if is_current_book:
                                 st.session_state.vectordb = None
-                            delete_book_vector_store(book["id"])
-                            delete_book(book["id"])
+                            _delete_book_with_history(book["id"])
                             if is_current_book:
                                 st.session_state.current_book_id = ""
                                 st.session_state.current_book = ""
                                 st.session_state.chat_history = []
+                                st.session_state.active_session_id = None
                             if st.session_state.selected_book_id == book["id"]:
                                 st.session_state.selected_book_id = ""
                             st.session_state.delete_confirm_id = ""
@@ -333,7 +345,7 @@ def render_bookshelf_sidebar():
     """渲染侧边栏的书籍管理区域"""
     st.header("文档管理")
 
-    uploaded_file = st.file_uploader("上传文本文件到当前书籍", type="txt")
+    uploaded_file = st.file_uploader("上传文档到当前书籍", type=["txt", "docx", "pdf"])
 
     if uploaded_file and st.button("追加上传"):
         if not st.session_state.current_book_id:
@@ -344,49 +356,52 @@ def render_bookshelf_sidebar():
             name = getattr(uploaded_file, "name", "upload")
 
             if len(raw) == 0:
-                st.error("文件为空，请选择有效的文本文件")
+                st.error("文件为空，请选择有效的文档")
             elif len(raw) > 50 * 1024 * 1024:
                 st.error("文件过大，建议不超过50MB")
             else:
-                text = _decode_uploaded_text(raw)
-                if text is None:
-                    st.error("文件编码异常，请使用 UTF-8 / GBK / GB2312 格式")
-                else:
-                    logger.info(
-                        "RAG upload (append): file=%r bytes=%s chars=%s",
-                        name,
-                        len(raw),
-                        len(text),
-                    )
-
-                    with st.spinner("正在处理文件..."):
-                        file_id = add_file_to_book(
-                            st.session_state.current_book_id, name
-                        )
-                        vectordb, chunk_count = create_vector_store(
-                            text,
-                            st.session_state.current_book_id,
-                            file_id,
+                try:
+                    text = parse_document(raw, name)
+                    if text is None:
+                        st.error(f"不支持的文件格式：{name}")
+                    else:
+                        logger.info(
+                            "RAG upload (append): file=%r bytes=%s chars=%s",
                             name,
-                            mode="append",
+                            len(raw),
+                            len(text),
                         )
 
-                        st.session_state.vectordb = vectordb
-                        st.session_state.rag_content_hash = hashlib.sha256(
-                            raw
-                        ).hexdigest()
+                        with st.spinner("正在处理文件..."):
+                            file_id = add_file_to_book(
+                                st.session_state.current_book_id, name
+                            )
+                            vectordb, chunk_count = create_vector_store(
+                                text,
+                                st.session_state.current_book_id,
+                                file_id,
+                                name,
+                                mode="append",
+                            )
 
-                        books = load_books_metadata()
-                        book = get_book_by_id(st.session_state.current_book_id)
-                        for f in book["files"]:
-                            if f["id"] == file_id:
-                                f["chunk_count"] = chunk_count
-                                save_books_metadata(books)
-                                break
+                            st.session_state.vectordb = vectordb
+                            st.session_state.rag_content_hash = hashlib.sha256(
+                                raw
+                            ).hexdigest()
 
-                    st.success(
-                        f"文件《{name}》已成功追加到《{st.session_state.current_book}》！"
-                    )
+                            books = load_books_metadata()
+                            book = get_book_by_id(st.session_state.current_book_id)
+                            for f in book["files"]:
+                                if f["id"] == file_id:
+                                    f["chunk_count"] = chunk_count
+                                    save_books_metadata(books)
+                                    break
+
+                        st.success(
+                            f"文件《{name}》已成功追加到《{st.session_state.current_book}》！"
+                        )
+                except Exception as e:
+                    st.error(f"文件解析失败：{str(e)}")
 
     st.markdown("---")
     st.markdown("**当前书籍文件**")
@@ -430,7 +445,7 @@ def render_bookshelf_sidebar():
                 _safe_rerun()
         else:
             st.warning(
-                f"确定要删除《{st.session_state.current_book}》吗？此操作不可恢复！"
+                f"确定要删除《{st.session_state.current_book}》吗？关联会话及全部历史记录将一起删除，不会留存。此操作不可恢复！"
             )
             col_confirm, col_cancel = st.columns(2)
             with col_confirm:
@@ -441,11 +456,11 @@ def render_bookshelf_sidebar():
                     type="primary",
                 ):
                     st.session_state.vectordb = None
-                    delete_book_vector_store(st.session_state.current_book_id)
-                    delete_book(st.session_state.current_book_id)
+                    _delete_book_with_history(st.session_state.current_book_id)
                     st.session_state.current_book_id = ""
                     st.session_state.current_book = ""
                     st.session_state.chat_history = []
+                    st.session_state.active_session_id = None
                     st.session_state.delete_current_book_confirm = False
                     st.success("书籍已删除")
                     _safe_rerun()

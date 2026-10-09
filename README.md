@@ -1,5 +1,11 @@
 # 伴读精灵 - 经典文学名著导赏系统
 
+> **FastAPI 服务层已接入。** 当前入口为独立 API + Streamlit API 客户端。
+> 在本目录分别执行 `python run_local.py api` 和 `python run_local.py ui`。
+> Swagger：`http://localhost:8000/docs`；界面：`http://localhost:8501`。
+> 详细启动、迁移与验收步骤见 [P0 交付与验收说明](../文档/P0_FastAPI服务层_交付与验收说明.md)。
+> 本机旧数据已备份迁移至 demo；不要同时运行旧 `auth_api.py`。
+
 > 基于大模型的经典文学名著阅读导赏与人物关系问答系统
 
 ## 项目简介
@@ -65,17 +71,23 @@ ollama pull qwen2.5:0.5b-instruct
 ollama pull bge-m3
 ```
 
-> 如需使用 OpenAI API，设置 `LLM_TYPE="openai"` 并配置 API Key。
+> 如需使用兼容 Chat Completions 的 AI 模型服务，在现有 `config.py` 中设置 `LLM_TYPE="api"`，并填写 `AI_MODEL_NAME`、`AI_BASE_URL`、`AI_API_KEY`。模型名称填写服务商提供的模型 ID；基础网址不含 `/chat/completions`。修改后重启应用。本地向量模型继续保持 `EMBED_TYPE="ollama"`。
 
 ## 使用说明
 
 ### 启动应用
+
+已增加本地演示鉴权，启动后在 [http://localhost:8501](http://localhost:8501) 点击登录。测试账号为 `demo / Demo@123456`、`admin / Admin@123456`。鉴权 HTTP 服务随 Streamlit 自动启动于 8000 端口。接口、初始化 SQL、模型 Key 生命周期见 [AUTH_GUIDE.md](AUTH_GUIDE.md)。
 
 ```bash
 streamlit run app.py
 ```
 
 ### 智能问答
+
+上传时使用本地 Ollama `bge-m3` 切分后向量化并写入 Chroma；提问时仅向量化当前问题并检索已有文档。
+
+侧边栏“回答模型”可选择本地 Ollama 或远程 API。本地填写模型 ID 与 Ollama 地址；远程默认使用项目固定 AI 配置，用户可输入自己的模型 ID、基础网址和 AI API 密钥并保存。本次登录的用户密钥使用 Windows DPAPI 加密，刷新或服务重启后仍有效，退出后清除；留空保存恢复项目默认配置。更换回答模型不会重建向量库。上传和检索始终需要本地 Ollama 及 `bge-m3`，远程回答不要求安装本地聊天模型。
 
 1. 点击「书籍管理」创建/选择书籍
 2. 上传 TXT 文本文件
@@ -129,7 +141,7 @@ literary-ai-guide-master/
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| LLM_TYPE | ollama | 大模型类型：ollama / openai |
+| LLM_TYPE | ollama | 大模型类型：ollama / api（兼容原 openai） |
 | EMBED_TYPE | ollama | Embedding 类型 |
 | OLLAMA_LLM_MODEL | qwen2.5:0.5b-instruct | Ollama 大模型 |
 | OLLAMA_EMBED_MODEL | bge-m3 | 向量化模型 |
@@ -162,3 +174,32 @@ MIT License
 ## 致谢
 
 - [Streamlit](https://streamlit.io/) · [LangChain](https://www.langchain.com/) · [Chroma](https://www.trychroma.com/) · [Ollama](https://ollama.com/) · [Mermaid](https://mermaid.js.org/)
+# SQLite 会话管理
+
+删除书籍会同时删除关联会话及全部历史记录，不会留存；两处确认界面均明确提示。对应旧 JSON 历史也会清理。
+
+智能问答侧边栏支持新建、切换、重命名、删除会话和清空当前会话历史。每个会话关联 `book_id`，同书可建立多个会话；重启后恢复最近书籍、会话及问答来源。会话名为 1–100 字符，删除前需勾选确认。
+
+使用 Python 内置 `sqlite3`，无需新增依赖。记录保存于项目 `data/sessions.sqlite3`，备份时请保存该文件。旧 `chat_history_cache.json` 会自动导入能唯一匹配书名的历史，原文件保留；无法匹配的记录在侧边栏提示。
+
+方案及验收见 [SESSION_PLAN.md](SESSION_PLAN.md)。运行回归：`python -m unittest discover -s tests -p "test_session*.py" -v`。
+
+
+### 基础习题自测
+
+进入“习题自测”，多选章节和可选难度，点击“开始自测”。全部选择答案后统一提交，显示正误、正确答案、解析和原著章节出处；答题阶段 API 不返回答案。JSON 缺失或无效时提示“习题数据未就绪”，漏答时提示“请先选择答案”。
+
+后端将题目快照和提交结果存入 service.sqlite3 的 exercise_attempts 表，按登录用户与书籍隔离。提交后不可改答案；相同提交重试不增加历史。开始新自测产生新记录，未提交记录不计入统计。题库后续调整不会改变已开始自测或历史判题结果。
+
+“历史记录与分析”提供分页记录、章节统计表、ECharts 章节正确率柱状图和历次正确率折线图。累计正确率 = 所有提交记录的正确次数 / 作答次数；重复练习计入统计。ECharts 5.6.0 从 jsDelivr CDN 加载，浏览器需要联网；加载失败仍可查看统计表。出处 source 字段为原著章节定位，不冒充逐字原文。
+
+新增接口（均需登录）：
+
+| 方法 | 路径 | 用途 |
+| --- | --- | --- |
+| POST | /api/books/{book_id}/exercise-attempts | chapters 数组、可选 difficulty；需 Idempotency-Key |
+| POST | /api/books/{book_id}/exercise-attempts/{attempt_id}/submit | answers：题目 ID 到选项索引（从 0 开始） |
+| GET | /api/books/{book_id}/exercise-attempts | 已提交历史，page/page_size 分页 |
+| GET | /api/books/{book_id}/exercise-statistics | 用户当前书籍的累计、章节与趋势统计 |
+
+回归：`python run_local.py test tests/test_exercise_selftest.py tests/test_fastapi_service.py tests/test_api_frontend.py -q`。更新后重启 API 与 Streamlit，数据库表自动创建。

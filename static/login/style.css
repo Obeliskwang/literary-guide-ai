@@ -1,0 +1,42 @@
+:root{color-scheme:light;--outside:#716b5e;--paper:#e8d8b5;--cream:#fffdf7;--ink:#42392e;--muted:#928778;--accent:#a68a59}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;padding:40px 24px;background:var(--outside);font-family:"Microsoft YaHei","PingFang SC",sans-serif;color:var(--ink)}
+.login-card{width:min(1080px,100%);min-height:660px;display:grid;grid-template-columns:40% 60%;background:var(--paper);box-shadow:0 10px 28px #29251d23;overflow:hidden}
+.illustration-panel{position:relative;min-height:660px;overflow:hidden;background:var(--paper)}
+.brand{position:absolute;left:32px;top:28px;z-index:2;display:flex;align-items:center;gap:10px;color:#705139;text-decoration:none;font-size:15px;letter-spacing:2px;font-weight:600}
+.brand svg{width:30px;height:30px}
+.illustration-copy{position:absolute;z-index:2;left:38px;top:80px}
+.illustration-copy p{font-family:"Songti SC","SimSun",serif;font-size:25px;letter-spacing:4px;line-height:1.45;margin:0;color:#766344}
+.illustration-copy>span{display:block;font-size:11px;letter-spacing:1px;color:#98835f;margin-top:9px}
+.book-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+.panel-footnote{position:absolute;bottom:23px;left:38px;font-size:8px;letter-spacing:1.8px;color:#9d8967}
+.form-panel{position:relative;display:flex;align-items:center;justify-content:center;min-height:660px;background:var(--cream);border-radius:42px 0 0 42px;padding:85px 60px 65px;z-index:3}
+.language{position:absolute;right:28px;top:25px;font-size:11px;letter-spacing:1px;color:#aaa294}
+.language span{margin-left:8px}
+.form-content{width:100%;max-width:370px}
+.eyebrow{color:#b1a389;font-size:9px;letter-spacing:3px;margin:0 0 14px}
+h1{font-size:28px;font-weight:500;letter-spacing:5px;margin:0 0 14px}
+.intro{font-size:12px;line-height:1.8;letter-spacing:1px;color:var(--muted);margin:0 0 38px}
+.field{margin-bottom:28px;border-bottom:1px solid #ded8cc;transition:border-color .2s}
+.field:focus-within{border-color:#a68a59}
+label{display:block;font-size:12px;letter-spacing:1.5px;margin-bottom:7px;color:#716657}
+input:not([type=hidden]){display:block;width:100%;height:37px;border:0;background:transparent;color:var(--ink);font:inherit;font-size:13px;outline:0;padding:4px 0 10px;border-radius:0}
+input::placeholder{color:#b4ac9f;font-size:12px;letter-spacing:1px}
+.password-row{display:flex;align-items:center;gap:12px}
+.password-toggle{background:none;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#a69e91;padding:4px;width:30px;height:30px;margin-bottom:7px;flex-shrink:0}
+.password-toggle svg{width:19px;height:19px}
+.password-toggle[aria-pressed=true]{color:#705139}
+.error-message{font-size:12px;color:#a14e3c;min-height:18px;margin:-7px 0 15px;line-height:1.5}
+.submit-button{width:100%;border:0;border-radius:4px;height:41px;background:var(--accent);color:#fffdf7;cursor:pointer;letter-spacing:4px;font-size:13px;position:relative;transition:background .2s}
+.submit-button span{position:absolute;right:20px;font-size:16px;top:10px;letter-spacing:0}
+.submit-button:hover{background:#957947}
+.submit-button:disabled{opacity:.65;cursor:wait}
+button:focus-visible,a:focus-visible{outline:2px solid #705139;outline-offset:4px}
+.demo-note{display:flex;align-items:center;gap:12px;font-size:10px;color:#9e9586;margin-top:24px;letter-spacing:.5px}
+.demo-label{font-size:9px;color:#9a855f;background:#f0eadd;padding:4px 7px;border-radius:3px;white-space:nowrap}
+.demo-note i{font-style:normal;color:#c2b8a7;margin:0 5px}
+.reading-note{font-family:"Songti SC","SimSun",serif;font-size:13px;letter-spacing:2px;color:#afa28a;margin:40px 0 0}
+.form-footnote{position:absolute;bottom:23px;left:0;right:0;text-align:center;color:#b9ae9c;font-size:9px;letter-spacing:2px}
+@media(max-width:760px){body{padding:20px}.login-card{grid-template-columns:34% 66%;min-height:610px}.illustration-panel{min-height:610px}.brand{left:20px;font-size:12px;gap:6px}.brand svg{width:23px}.illustration-copy{left:20px;top:108px}.illustration-copy p{font-size:21px;letter-spacing:2px}.illustration-copy>span{font-size:10px;max-width:120px;line-height:1.8}.book-art{width:145%;left:-23%;height:400px;bottom:45px}.panel-footnote{display:none}.form-panel{min-height:610px;padding:75px 32px 60px;border-radius:32px 0 0 32px}.demo-note{gap:8px;flex-wrap:wrap}}
+@media(max-width:520px){body{padding:18px 12px;align-items:flex-start}.login-card{display:block;min-height:0}.illustration-panel{min-height:190px;height:190px}.brand{top:20px}.illustration-copy{top:76px;left:24px}.illustration-copy p{font-size:22px}.illustration-copy>span{margin-top:7px;max-width:none;font-size:10px}.book-art{left:auto;right:-4%;bottom:-30px;width:51%;height:245px;object-position:50% 60%}.form-panel{min-height:520px;border-radius:28px 28px 0 0;padding:55px 30px 65px}.language{top:20px;right:23px}.intro{margin-bottom:30px}.reading-note{margin-top:30px}h1{font-size:25px}.form-footnote{bottom:20px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}

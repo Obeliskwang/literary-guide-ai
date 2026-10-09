@@ -8,7 +8,7 @@ import os
 import urllib.error
 import urllib.request
 
-from config import EMBED_MODEL, EMBED_TYPE, LLM_MODEL, LLM_TYPE  # VISION_MODEL 暂时注释掉
+from config import EMBED_MODEL, EMBED_TYPE, LLM_MODEL, LLM_TYPE, OLLAMA_EMBED_MODEL
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ def _fetch_installed_model_names() -> list[str]:
     return names
 
 
-def ensure_ollama_models() -> None:
+def ensure_ollama_models(embedding_only=False) -> None:
     """
     Confirm chat and embedding models from config exist in local Ollama.
     (VISION_MODEL 暂时注释掉，项目暂时不需要 llava 模型)
@@ -72,10 +72,12 @@ def ensure_ollama_models() -> None:
     # 根据模型类型决定需要检查哪些模型
     required = []
     
-    if LLM_TYPE == "ollama":
+    if not embedding_only and LLM_TYPE == "ollama":
         required.append(("LLM_MODEL", LLM_MODEL))
     
-    if EMBED_TYPE == "ollama":
+    if embedding_only:
+        required.append(("OLLAMA_EMBED_MODEL", OLLAMA_EMBED_MODEL))
+    elif EMBED_TYPE == "ollama":
         required.append(("EMBED_MODEL", EMBED_MODEL))
     
     # ("VISION_MODEL", VISION_MODEL),  # 暂时注释掉，项目暂时不需要 llava 模型

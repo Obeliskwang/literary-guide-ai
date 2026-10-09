@@ -119,8 +119,39 @@ def extract_chapter_metadata(text):
 
 
 def split_text_by_lines(
-    text, lines_per_chunk=CHUNK_LINES, overlap_lines=CHUNK_LINE_OVERLAP
+    text,
+    lines_per_chunk=CHUNK_LINES,
+    overlap_lines=CHUNK_LINE_OVERLAP,
+    source_format="txt",
 ):
+    if source_format == "pdf":
+        pages = text.split("\f")
+        docs = []
+        for page_num, page_text in enumerate(pages, 1):
+            page_text = page_text.strip()
+            if not page_text:
+                continue
+            if len(page_text) > MAX_CHUNK_CHARS:
+                page_text = page_text[:MAX_CHUNK_CHARS]
+            docs.append(
+                Document(
+                    page_content=page_text,
+                    metadata={
+                        "chunk_index": page_num - 1,
+                        "page": page_num,
+                        "chapter": f"第{page_num}页",
+                        "source_format": "pdf",
+                        "split_mode": "page_based",
+                    },
+                )
+            )
+        logger.info(
+            "split_text_by_lines: PDF page-based split, created %s chunks from %s pages",
+            len(docs),
+            len(pages),
+        )
+        return docs
+
     lines = text.split("\n")
     docs = []
     total_lines = len(lines)
@@ -148,6 +179,7 @@ def split_text_by_lines(
                         "total_lines": total_lines,
                         "chapter": "未知章节",
                         "split_mode": "char_fallback",
+                        "source_format": source_format,
                     },
                 )
             )
@@ -180,6 +212,7 @@ def split_text_by_lines(
             "end_line": end,
             "total_lines": total_lines,
             "chapter": current_chapter if current_chapter else "未知章节",
+            "source_format": source_format,
         }
 
         docs.append(Document(page_content=chunk_text, metadata=metadata))
@@ -201,17 +234,20 @@ def create_vector_store(text, book_id, file_id, file_name, mode="append"):
     embeddings = get_embeddings()
     persist_dir = get_book_persist_dir(book_id)
 
+    source_format = file_name.lower().split(".")[-1] if file_name else "txt"
+
     logger.info(
-        "create_vector_store: book_id=%s, file_id=%s, file_name=%s, input_chars=%s, mode=%s",
+        "create_vector_store: book_id=%s, file_id=%s, file_name=%s, input_chars=%s, mode=%s, format=%s",
         book_id,
         file_id,
         file_name,
         len(text),
         mode,
+        source_format,
     )
 
     text = clean_text(text)
-    docs = split_text_by_lines(text)
+    docs = split_text_by_lines(text, source_format=source_format)
     logger.info("create_vector_store: chunks=%s", len(docs))
 
     for doc in docs:

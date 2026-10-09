@@ -14,7 +14,8 @@
       ],
       "answer": 1,
       "explanation": "菩提祖师在灵台方寸山的斜月三星洞中教授孙悟空法术。",
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "source": "《西游记》第一回"
     },
     {
       "id": "ex002",
@@ -28,7 +29,8 @@
       ],
       "answer": 2,
       "explanation": "孙悟空先学了长生不老术，之后才学得七十二变和筋斗云。",
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "source": "《西游记》第二回"
     },
     {
       "id": "ex003",
@@ -42,11 +44,12 @@
       ],
       "answer": 1,
       "explanation": "孙悟空在东海龙宫获得了如意金箍棒作为兵器。",
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "source": "《西游记》第三回"
     },
     {
       "id": "ex004",
-      "chapter": "第五回",
+      "chapter": "第十九回",
       "question": "猪八戒原本是天上的什么神仙？",
       "options": [
         "天蓬元帅",
@@ -56,7 +59,8 @@
       ],
       "answer": 0,
       "explanation": "猪八戒原是天蓬元帅，因调戏嫦娥被贬下凡。",
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "source": "《西游记》第十九回"
     },
     {
       "id": "ex005",
@@ -70,11 +74,12 @@
       ],
       "answer": 0,
       "explanation": "孙悟空被如来佛祖压在五行山下五百年。",
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "source": "《西游记》第七回"
     },
     {
       "id": "ex006",
-      "chapter": "第八回",
+      "chapter": "第一百回",
       "question": "唐僧的前世是什么身份？",
       "options": [
         "金蝉子",
@@ -84,11 +89,12 @@
       ],
       "answer": 0,
       "explanation": "唐僧是金蝉子转世，因轻慢佛法被贬下凡。",
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "source": "《西游记》第一百回"
     },
     {
       "id": "ex007",
-      "chapter": "第十回",
+      "chapter": "第二十二回",
       "question": "沙和尚原本是天上的什么官职？",
       "options": [
         "天蓬元帅",
@@ -98,21 +104,23 @@
       ],
       "answer": 1,
       "explanation": "沙和尚原是卷帘大将，因打碎琉璃盏被贬下凡。",
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "source": "《西游记》第二十二回"
     },
     {
       "id": "ex008",
-      "chapter": "第十二回",
-      "question": "观音菩萨给唐僧的三个徒弟起了什么法号？",
+      "chapter": "第二十二回",
+      "question": "按孙悟空、猪八戒、沙和尚的顺序，三人的法号分别是什么？",
       "options": [
         "悟能、悟空、悟净",
         "悟空、悟净、悟能",
         "悟净、悟能、悟空",
         "悟空、悟能、悟净"
       ],
-      "answer": 1,
+      "answer": 3,
       "explanation": "依次是孙悟空、猪八戒（悟能）、沙和尚（悟净）。",
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "source": "《西游记》第一回、第八回、第二十二回"
     },
     {
       "id": "ex009",
@@ -126,7 +134,8 @@
       ],
       "answer": 1,
       "explanation": "白骨精依次变成少女、老妇、老翁来欺骗唐僧。",
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "source": "《西游记》第二十七回"
     },
     {
       "id": "ex010",
@@ -140,7 +149,8 @@
       ],
       "answer": 1,
       "explanation": "铁扇公主的芭蕉扇能够扇灭火焰山的熊熊烈火。",
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "source": "《西游记》第五十九回"
     }
   ]
 }

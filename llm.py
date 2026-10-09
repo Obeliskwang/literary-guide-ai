@@ -2,15 +2,15 @@ import os
 import requests
 from typing import List
 from langchain_ollama import ChatOllama
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_core.embeddings import Embeddings
 from config import (
     EMBED_MODEL,
+    OLLAMA_EMBED_MODEL,
     EMBED_TYPE,
     LLM_MODEL,
     LLM_TYPE,
-    OPENAI_API_KEY,
-    OPENAI_BASE_URL,
+    AI_API_KEY,
+    AI_BASE_URL,
     TEMPERATURE,
 )
 
@@ -47,27 +47,25 @@ class OllamaEmbeddings(Embeddings):
 
 
 def get_embeddings():
-    """获取 Embedding 实例，根据 EMBED_TYPE 选择"""
-    if EMBED_TYPE == "openai":
-        return OpenAIEmbeddings(
-            model=EMBED_MODEL,
-            api_key=OPENAI_API_KEY,
-            base_url=OPENAI_BASE_URL,
-        )
-    else:
-        return OllamaEmbeddings(model_name=EMBED_MODEL)
+    """上传文档和检索问题统一使用本地 Ollama 向量模型。"""
+    return OllamaEmbeddings(
+        model_name=OLLAMA_EMBED_MODEL,
+        base_url=os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434"),
+    )
 
 
 def get_llm():
     """获取 LLM 实例，根据 LLM_TYPE 选择"""
     temperature = float(os.environ.get("OLLAMA_TEMPERATURE", TEMPERATURE))
 
-    if LLM_TYPE == "openai":
+    if LLM_TYPE in ("api", "openai"):
+        from langchain_openai import ChatOpenAI
+
         return ChatOpenAI(
             model=LLM_MODEL,
             temperature=temperature,
-            api_key=OPENAI_API_KEY,
-            base_url=OPENAI_BASE_URL,
+            api_key=AI_API_KEY,
+            base_url=AI_BASE_URL,
         )
     else:
         model_name = os.environ.get("OLLAMA_MODEL", LLM_MODEL)

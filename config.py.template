@@ -15,21 +15,21 @@ import sys
 
 # Model configuration
 # 分别配置 LLM 和 Embedding 的模型类型，支持独立选择
-LLM_TYPE = "ollama"  # "ollama" or "openai"
+LLM_TYPE = "ollama"  # "ollama" 或 "api"（兼容原 "openai"）
 EMBED_TYPE = "ollama"  # "ollama" or "openai"
 
 # Ollama settings
 OLLAMA_LLM_MODEL = "qwen2.5:0.5b-instruct"  # 或 qwen2:7b, qwen2:14b
 OLLAMA_EMBED_MODEL = "bge-m3"  # BGE系列对中文更友好
 
-# OpenAI settings
-OPENAI_LLM_MODEL = "gpt-5.4"
+# AI 模型配置：自行填写服务商的模型 ID、API 基础网址和 Key
+AI_MODEL_NAME = "YOUR_MODEL_ID"  # 服务商提供的模型 ID
 OPENAI_EMBED_MODEL = "text-embedding-3-large"
-OPENAI_API_KEY = "YOUR_OPENAI_API_KEY_HERE"  # 替换为您的 API Key
-OPENAI_BASE_URL = "https://api.openai.com/v1"  # 或您使用的代理地址
+AI_API_KEY = "YOUR_AI_API_KEY_HERE"  # 替换为您的 API Key
+AI_BASE_URL = "https://api.deepseek.com"  # API 基础网址，不含 /chat/completions
 
 # 当前生效的模型（根据类型自动选择）
-LLM_MODEL = OPENAI_LLM_MODEL if LLM_TYPE == "openai" else OLLAMA_LLM_MODEL
+LLM_MODEL = AI_MODEL_NAME if LLM_TYPE in ("api", "openai") else OLLAMA_LLM_MODEL
 EMBED_MODEL = OPENAI_EMBED_MODEL if EMBED_TYPE == "openai" else OLLAMA_EMBED_MODEL
 
 PYTHON_EXE = os.environ.get(

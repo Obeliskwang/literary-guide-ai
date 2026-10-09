@@ -68,6 +68,20 @@ env/
 .env/
 .python-version
 
+# Local conversation database
+data/sessions.sqlite3*
+data/auth.sqlite3*
+
+# FastAPI local runtime, migration backups and private business storage
+.runtime-deps/
+.api-deps/
+.ui-deps/
+.migration-backup/
+data/service.sqlite3*
+data/api.lock
+data/migration_backups/
+.pytest_cache/
+
 # 操作系统文件
 .DS_Store
 Thumbs.db

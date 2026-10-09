@@ -3,14 +3,14 @@ import re
 import traceback
 from rag import retrieve
 import requests
-from openai import OpenAI
+from chat_backend import ChatSettings, complete_chat
 
 from config import (
     MAX_CONVERSATION_TURNS,
     MAX_PROMPT_CHARS,
     LLM_TYPE,
-    OPENAI_API_KEY,
-    OPENAI_BASE_URL,
+    AI_API_KEY,
+    AI_BASE_URL,
     REJECTION_MESSAGE,
     TEMPERATURE,
     LLM_MODEL,
@@ -21,13 +21,25 @@ logger = logging.getLogger(__name__)
 
 def check_model_health():
     """检查模型服务是否可用"""
-    if LLM_TYPE == "openai":
+    if LLM_TYPE in ("api", "openai"):
         try:
-            client = OpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL)
-            client.models.list()
-            return True
+            response = requests.post(
+                f"{AI_BASE_URL.rstrip('/')}/chat/completions",
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {AI_API_KEY}",
+                },
+                json={
+                    "model": LLM_MODEL,
+                    "messages": [{"role": "user", "content": "test"}],
+                    "max_tokens": 1,
+                    "stream": False,
+                },
+                timeout=10,
+            )
+            return response.status_code >= 200 and response.status_code < 300
         except Exception as e:
-            logger.warning("OpenAI API health check failed: %s", e)
+            logger.warning("AI model API health check failed: %s", e)
             return False
     else:
         try:
@@ -218,14 +230,13 @@ def build_rag_prompt(retrieved_chunks, question, history=None):
     return _truncate_text(prompt, MAX_PROMPT_CHARS)
 
 
-def generate_answer(vectordb, query, retrieved_results=None, conversation_history=None):
+def generate_answer(vectordb, query, retrieved_results=None, conversation_history=None, chat_settings=None):
     """Generate answer with cited source snippets."""
 
     if retrieved_results is None:
         retrieved_results = retrieve(vectordb, query)
 
     if retrieved_results.get("reject"):
-        logger.info("generate_answer: rejecting query %r", query)
         return {
             "answer": REJECTION_MESSAGE,
             "sources": [],
@@ -233,79 +244,18 @@ def generate_answer(vectordb, query, retrieved_results=None, conversation_histor
             "soft_reject": False,
         }
 
-    logger.info("generate_answer: generating answer for query %r", query)
-
-    if not check_model_health():
-        logger.error("generate_answer: Model service is not responding")
-        service_name = "OpenAI API" if LLM_TYPE == "openai" else "Ollama"
-        return {
-            "answer": f"{service_name}服务暂时不可用，请检查服务是否正常运行",
-            "sources": [],
-            "rejected": False,
-            "error": f"{service_name} service unavailable",
-        }
-
     prompt = build_rag_prompt(retrieved_results["results"], query, conversation_history)
-
     try:
-        logger.info(
-            "generate_answer: invoking model %s (type: %s)", LLM_MODEL, LLM_TYPE
+        settings = chat_settings or ChatSettings(
+            "api" if LLM_TYPE in ("api", "openai") else "ollama",
+            LLM_MODEL,
+            AI_BASE_URL if LLM_TYPE in ("api", "openai") else "http://localhost:11434",
+            AI_API_KEY if LLM_TYPE in ("api", "openai") else "",
         )
-
-        answer = ""
-        if LLM_TYPE == "openai":
-            client = OpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL)
-            messages = [
-                {
-                    "role": "system",
-                    "content": "你是一个专业的文学名著导读助手，擅长从原著文本中提取准确的信息并给出有依据的回答。",
-                },
-                {
-                    "role": "user",
-                    "content": prompt,
-                },
-            ]
-            response = client.chat.completions.create(
-                model=LLM_MODEL,
-                messages=messages,
-                temperature=TEMPERATURE,
-                max_tokens=256,
-                stream=False,
-            )
-            answer = response.choices[0].message.content
-        else:
-            payload = {
-                "model": LLM_MODEL,
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": "你是一个专业的文学名著导读助手，擅长从原著文本中提取准确的信息并给出有依据的回答。",
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt,
-                    },
-                ],
-                "stream": False,
-                "options": {
-                    "temperature": TEMPERATURE,
-                    "num_predict": 256,
-                },
-            }
-            response = requests.post(
-                "http://localhost:11434/api/chat",
-                json=payload,
-                timeout=60,
-            )
-            if response.status_code != 200:
-                raise RuntimeError(
-                    f"Ollama chat API error: {response.status_code} {response.text[:1000]}"
-                )
-            data = response.json()
-            message = data.get("message") or {}
-            answer = message.get("content", "")
+        answer = complete_chat(settings, prompt, TEMPERATURE)
 
         if not answer:
+            logger.error("generate_answer: HTTP request succeeded but model content is empty")
             raise RuntimeError(f"API returned empty message")
 
         answer = _strip_think_tags(answer)
@@ -333,11 +283,12 @@ def generate_answer(vectordb, query, retrieved_results=None, conversation_histor
             "min_distance": retrieved_results["min_distance"],
         }
     except Exception as e:
-        logger.error("generate_answer failed: %s", e)
-        logger.debug("generate_answer traceback:\n%s", traceback.format_exc())
+        logger.error("generate_answer failed: %s", type(e).__name__)
+        # Do not log provider responses or request credentials.
         return {
             "answer": "生成回答时发生错误，请重试",
             "sources": [],
             "rejected": False,
-            "error": str(e),
+            "error": type(e).__name__,
+            "error_message": getattr(e, "safe_message", "模型请求失败"),
         }

@@ -1,0 +1,13 @@
+.git
+.idea
+.trae
+__pycache__
+*.pyc
+.pytest_cache
+.api-deps
+.ui-deps
+.runtime-deps
+.migration-backup
+*.log
+.env
+chroma_db
