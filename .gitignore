@@ -86,3 +86,6 @@ data/migration_backups/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+*.err
+chat_history_cache.json
